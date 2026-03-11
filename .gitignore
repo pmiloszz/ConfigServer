@@ -208,3 +208,6 @@ __marimo__/
 
 #db example content
 flags.db
+
+#project dump
+project_dump.txt

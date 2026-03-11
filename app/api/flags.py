@@ -1,35 +1,31 @@
-# app/api.py
+# app/api/flags.py
 from datetime import datetime
-from typing import Optional
+from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
+from sqlalchemy.exc import IntegrityError
 
 from app.db import get_session
 from app.models import Flag
-from pydantic import BaseModel
+from app.schemas.flag import FlagCreate, FlagUpdate, FlagRead
 
 router = APIRouter(prefix="/flags", tags=["flags"])
 
-class FlagCreate(BaseModel):
-    app: str
-    env: str
-    key: str
-    value: bool
-    description: Optional[str] = None
+@router.get("", response_model=List[FlagRead])
+def list_flags(app_name: str, env: str, session: Session = Depends(get_session)):
+    stmt = select(Flag).where(Flag.app == app_name, Flag.env == env)
+    return session.exec(stmt).all()
 
-class FlagUpdate(BaseModel):
-    value: Optional[bool] = None
-    description: Optional[str] = None
-    version: int
+@router.get("/{flag_id}", response_model=FlagRead)
+def get_flag(flag_id: int, session: Session = Depends(get_session)):
+    f = session.get(Flag, flag_id)
+    if not f:
+        raise HTTPException(status_code=404, detail="Flag not found")
+    return f
 
-@router.post("", response_model=Flag, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=FlagRead, status_code=status.HTTP_201_CREATED)
 def create_flag(payload: FlagCreate, session: Session = Depends(get_session)):
-    # Optional: check uniqueness by (app, env, key)
-    stmt = select(Flag).where(Flag.app == payload.app, Flag.env == payload.env, Flag.key == payload.key)
-    existing = session.exec(stmt).first()
-    if existing:
-        raise HTTPException(status_code=409, detail="Flag already exists for app/env/key")
     f = Flag(
         app=payload.app,
         env=payload.env,
@@ -38,16 +34,19 @@ def create_flag(payload: FlagCreate, session: Session = Depends(get_session)):
         description=payload.description,
     )
     session.add(f)
-    session.commit()
+    try:
+        session.commit()
+    except IntegrityError:
+        session.rollback()
+        raise HTTPException(status_code=409, detail="Flag already exists for app/env/key")
     session.refresh(f)
     return f
 
-@router.put("/{flag_id}", response_model=Flag)
+@router.put("/{flag_id}", response_model=FlagRead)
 def update_flag(flag_id: int, payload: FlagUpdate, session: Session = Depends(get_session)):
     f = session.get(Flag, flag_id)
     if not f:
         raise HTTPException(status_code=404, detail="Flag not found")
-    # optimistic locking: require client to send current version
     if payload.version != f.version:
         raise HTTPException(status_code=409, detail="Version mismatch")
     updated = False
@@ -64,3 +63,12 @@ def update_flag(flag_id: int, payload: FlagUpdate, session: Session = Depends(ge
         session.commit()
         session.refresh(f)
     return f
+
+@router.delete("/{flag_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_flag(flag_id: int, session: Session = Depends(get_session)):
+    f = session.get(Flag, flag_id)
+    if not f:
+        raise HTTPException(status_code=404, detail="Flag not found")
+    session.delete(f)
+    session.commit()
+    return None

@@ -3,9 +3,10 @@ import os
 from sqlmodel import SQLModel, Session, select
 from app.models import Flag
 from app.db import engine
+from app.settings import settings
 
 def run():
-    print("Using DATABASE_URL:", os.getenv("DATABASE_URL", "sqlite:///./flags.db"))
+    print("Using DATABASE_URL:", settings.database_url)
     SQLModel.metadata.create_all(engine)
     with Session(engine) as s:
         f = Flag(app="demo", env="dev", key="feature_x", value=True)

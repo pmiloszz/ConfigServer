@@ -1,21 +1,16 @@
 # app/db.py
-import os
 from typing import Generator
 from sqlmodel import create_engine, Session
+from sqlalchemy.engine import Engine
+from app.settings import settings
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./flags.db")
+DATABASE_URL = settings.database_url
 
-# detect sqlite vs other dialects
+# sqlite needs connect_args
 is_sqlite = DATABASE_URL.startswith("sqlite")
+connect_args = {"check_same_thread": False} if is_sqlite else {}
 
-if is_sqlite:
-    engine = create_engine(
-        DATABASE_URL,
-        echo=True,
-        connect_args={"check_same_thread": False},  # only for sqlite
-    )
-else:
-    engine = create_engine(DATABASE_URL, echo=True)
+engine: Engine = create_engine(DATABASE_URL, echo=settings.debug, connect_args=connect_args)
 
 def get_session() -> Generator[Session, None, None]:
     with Session(engine) as session:

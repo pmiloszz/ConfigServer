@@ -1,63 +1,50 @@
 # main.py
-import os
 import logging
-
 from pathlib import Path
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from starlette.staticfiles import StaticFiles
 
-# optional DB imports
-from sqlmodel import SQLModel, select
-from app.db import engine, get_session
-from app.models import Flag
+from app.settings import settings
+from app.db import engine
+from sqlmodel import SQLModel
 
-log = logging.getLogger("uvicorn.error")
-app = FastAPI(title="ConfigServer")  # app has to be defined before imports that use it (e.g. for router) to avoid circular imports
-
-# import for router
+# import router
 from app.api import router as flags_router
 
-# router
-app.include_router(flags_router)
+log = logging.getLogger("uvicorn.error")
 
-# --- static (mount only if directory exists) ---
-project_root = Path(__file__).parent
-static_dir = project_root / "static"
-if static_dir.exists() and static_dir.is_dir():
-    app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
-else:
-    log.warning("Static directory not found: %s (skipping mount)", static_dir)
+def create_app() -> FastAPI:
+    app = FastAPI(title="ConfigServer")
 
-# --- health endpoint ---
-@app.get("/healthz")
-def healthz():
-    return JSONResponse({"status": "ok"})
+    # register routers
+    app.include_router(flags_router)
 
-# --- startup: DB init and other (startup function) ---
-DATABASE_URL = os.getenv("DATABASE_URL")
+    # static
+    project_root = Path(__file__).parent
+    static_dir = project_root / "static"
+    if static_dir.exists() and static_dir.is_dir():
+        app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+    else:
+        log.warning("Static directory not found: %s (skipping mount)", static_dir)
 
-@app.on_event("startup")
-def app_startup():
-    log.info("Application startup: checking optional DB initialization")
-    # init only if we have DATABASE_URL i SQLModel
-    try:
-        if DATABASE_URL:
-            # create_engine import in app.db; use engine from app.db just in dev fallback
-            SQLModel.metadata.create_all(engine)  # dev only; in production use Alembic
-            log.info("Database tables ensured (create_all) using %s", DATABASE_URL)
-        else:
-            log.info("No DATABASE_URL provided; skipping DB init")
-    except Exception as exc:
-        log.exception("Database initialization skipped due to error: %s", exc)
+    @app.get("/healthz")
+    def healthz():
+        return JSONResponse({"status": "ok"})
 
-# --- example endpoint CRUD (sync) ---
-@app.get("/flags")
-def list_flags(app_name: str, env: str, session = Depends(get_session)):
-    stmt = select(Flag).where(Flag.app == app_name, Flag.env == env)
-    return session.exec(stmt).all()
+    @app.on_event("startup")
+    def on_startup():
+        log.info("Application startup: checking optional DB initialization")
+        try:
+            # only auto-create in dev or when using sqlite for quick dev
+            if settings.environment == "dev" or settings.database_url.startswith("sqlite"):
+                SQLModel.metadata.create_all(engine)
+                log.info("Database tables ensured (create_all) using %s", settings.database_url)
+            else:
+                log.info("Skipping create_all in non-dev environment")
+        except Exception as exc:
+            log.exception("Database initialization skipped due to error: %s", exc)
 
-# --- root ---
-@app.get("/")
-def root():
-    return {"message": "ConfigServer running"}
+    return app
+
+app = create_app()

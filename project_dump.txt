@@ -1,3 +1,1145 @@
+Project dump generated: Wed, Mar 11, 2026 12:47:36 PM
+
+
+=== ./.gitignore ===
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[codz]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+#   For a library or package, you might want to ignore these files since the code is
+#   intended to run in multiple environments; otherwise, check them in:
+# .python-version
+
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#Pipfile.lock
+
+# UV
+#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#uv.lock
+
+# poetry
+#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
+#poetry.lock
+#poetry.toml
+
+# pdm
+#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
+#   pdm recommends including project-wide configuration in pdm.toml, but excluding .pdm-python.
+#   https://pdm-project.org/en/latest/usage/project/#working-with-version-control
+#pdm.lock
+#pdm.toml
+.pdm-python
+.pdm-build/
+
+# pixi
+#   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
+#pixi.lock
+#   Pixi creates a virtual environment in the .pixi directory, just like venv module creates one
+#   in the .venv directory. It is recommended not to include this directory in version control.
+.pixi
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.envrc
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
+#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+#  and can be added to the global gitignore or merged into this file.  For a more nuclear
+#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
+#.idea/
+
+# Abstra
+# Abstra is an AI-powered process automation framework.
+# Ignore directories containing user credentials, local state, and settings.
+# Learn more at https://abstra.io/docs
+.abstra/
+
+# Visual Studio Code
+#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
+#  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
+#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
+#  you could uncomment the following to ignore the entire vscode folder
+# .vscode/
+
+# Ruff stuff:
+.ruff_cache/
+
+# PyPI configuration file
+.pypirc
+
+# Cursor
+#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
+#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
+#  refer to https://docs.cursor.com/context/ignore-files
+.cursorignore
+.cursorindexingignore
+
+# Marimo
+marimo/_static/
+marimo/_lsp/
+__marimo__/
+
+#db example content
+flags.db
+
+=== ./.pytest_cache/.gitignore ===
+# Created by pytest automatically.
+*
+
+
+=== ./.pytest_cache/CACHEDIR.TAG ===
+Signature: 8a477f597d28d172789f06886806bc55
+# This file is a cache directory tag created by pytest.
+# For information about cache directory tags, see:
+#	https://bford.info/cachedir/spec.html
+
+
+=== ./.pytest_cache/README.md ===
+# pytest cache directory #
+
+This directory contains data from the pytest's cache plugin,
+which provides the `--lf` and `--ff` options, as well as the `cache` fixture.
+
+**Do not** commit this to version control.
+
+See [the docs](https://docs.pytest.org/en/stable/how-to/cache.html) for more information.
+
+
+=== ./.pytest_cache/v/cache/nodeids ===
+[]
+
+=== ./app/api/flags.py ===
+# app/api/flags.py
+from datetime import datetime
+from typing import List
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlmodel import Session, select
+from sqlalchemy.exc import IntegrityError
+
+from app.db import get_session
+from app.models import Flag
+from app.schemas.flag import FlagCreate, FlagUpdate, FlagRead
+
+router = APIRouter(prefix="/flags", tags=["flags"])
+
+@router.get("", response_model=List[FlagRead])
+def list_flags(app_name: str, env: str, session: Session = Depends(get_session)):
+    stmt = select(Flag).where(Flag.app == app_name, Flag.env == env)
+    return session.exec(stmt).all()
+
+@router.get("/{flag_id}", response_model=FlagRead)
+def get_flag(flag_id: int, session: Session = Depends(get_session)):
+    f = session.get(Flag, flag_id)
+    if not f:
+        raise HTTPException(status_code=404, detail="Flag not found")
+    return f
+
+@router.post("", response_model=FlagRead, status_code=status.HTTP_201_CREATED)
+def create_flag(payload: FlagCreate, session: Session = Depends(get_session)):
+    f = Flag(
+        app=payload.app,
+        env=payload.env,
+        key=payload.key,
+        value=payload.value,
+        description=payload.description,
+    )
+    session.add(f)
+    try:
+        session.commit()
+    except IntegrityError:
+        session.rollback()
+        raise HTTPException(status_code=409, detail="Flag already exists for app/env/key")
+    session.refresh(f)
+    return f
+
+@router.put("/{flag_id}", response_model=FlagRead)
+def update_flag(flag_id: int, payload: FlagUpdate, session: Session = Depends(get_session)):
+    f = session.get(Flag, flag_id)
+    if not f:
+        raise HTTPException(status_code=404, detail="Flag not found")
+    if payload.version != f.version:
+        raise HTTPException(status_code=409, detail="Version mismatch")
+    updated = False
+    if payload.value is not None and payload.value != f.value:
+        f.value = payload.value
+        updated = True
+    if payload.description is not None and payload.description != f.description:
+        f.description = payload.description
+        updated = True
+    if updated:
+        f.version = f.version + 1
+        f.updated_at = datetime.utcnow()
+        session.add(f)
+        session.commit()
+        session.refresh(f)
+    return f
+
+@router.delete("/{flag_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_flag(flag_id: int, session: Session = Depends(get_session)):
+    f = session.get(Flag, flag_id)
+    if not f:
+        raise HTTPException(status_code=404, detail="Flag not found")
+    session.delete(f)
+    session.commit()
+    return None
+
+=== ./app/api/__init__.py ===
+# app/api/__init__.py
+from .flags import router as flags_router
+router = flags_router
+__all__ = ["flags_router", "router"]
+
+=== ./app/db.py ===
+# app/db.py
+from typing import Generator
+from sqlmodel import create_engine, Session
+from sqlalchemy.engine import Engine
+from app.settings import settings
+
+DATABASE_URL = settings.database_url
+
+# sqlite needs connect_args
+is_sqlite = DATABASE_URL.startswith("sqlite")
+connect_args = {"check_same_thread": False} if is_sqlite else {}
+
+engine: Engine = create_engine(DATABASE_URL, echo=settings.debug, connect_args=connect_args)
+
+def get_session() -> Generator[Session, None, None]:
+    with Session(engine) as session:
+        yield session
+
+=== ./app/models.py ===
+# app/models.py
+from typing import Optional
+from datetime import datetime
+from sqlmodel import SQLModel, Field
+from sqlalchemy import UniqueConstraint
+
+class Flag(SQLModel, table=True):
+    __table_args__ = (UniqueConstraint("app", "env", "key", name="uix_flag_app_env_key"),)
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    app: str
+    env: str
+    key: str
+    value: bool
+    description: str | None = None
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    version: int = Field(default=1)
+
+=== ./app/schemas/flag.py ===
+# app/schemas/flag.py
+from datetime import datetime
+from typing import Optional
+from pydantic import BaseModel
+
+class FlagBase(BaseModel):
+    app: str
+    env: str
+    key: str
+    value: bool
+    description: str | None = None
+
+class FlagCreate(FlagBase):
+    pass
+
+class FlagUpdate(BaseModel):
+    value: bool | None = None
+    description: str | None = None
+    version: int
+
+class FlagRead(FlagBase):
+    id: int
+    version: int
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+=== ./app/schemas/__init__.py ===
+from .flag import FlagCreate, FlagUpdate, FlagRead
+__all__ = ["FlagCreate", "FlagUpdate", "FlagRead"]
+
+
+=== ./app/settings.py ===
+# app/settings.py
+from pydantic_settings import BaseSettings
+
+class Settings(BaseSettings):
+    database_url: str = "sqlite:///./flags.db"
+    environment: str = "dev"  # dev | test | prod
+    debug: bool = True
+
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
+settings = Settings()
+
+=== ./app/__init__.py ===
+# app/__init__.py
+# package marker
+
+=== ./flags.db ===
+SQLite format 3   @                                                                     .Š   ó ó                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ‚
+ƒwtableflagflagCREATE TABLE flag (
+	id INTEGER NOT NULL, 
+	app VARCHAR NOT NULL, 
+	env VARCHAR NOT NULL, 
+	"key" VARCHAR NOT NULL, 
+	value BOOLEAN NOT NULL, 
+	description VARCHAR, 
+	updated_at DATETIME NOT NULL, 
+	version INTEGER NOT NULL, 
+	PRIMARY KEY (id)
+)Ë  Z’Ë                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ;	 A	demodevfeature_aapi test2026-03-03 13:03:07.9162626	 	Ademodevfeature_xon2026-03-03 12:47:54.6351787	 A	demodevfeature_ytest2026-03-03 12:47:38.518301   5	 A	demodevfeature_x2026-03-11 10:45:42.008755
+
+=== ./main.py ===
+# main.py
+import logging
+from pathlib import Path
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
+from starlette.staticfiles import StaticFiles
+
+from app.settings import settings
+from app.db import engine
+from sqlmodel import SQLModel
+
+# import router
+from app.api import router as flags_router
+
+log = logging.getLogger("uvicorn.error")
+
+def create_app() -> FastAPI:
+    app = FastAPI(title="ConfigServer")
+
+    # register routers
+    app.include_router(flags_router)
+
+    # static
+    project_root = Path(__file__).parent
+    static_dir = project_root / "static"
+    if static_dir.exists() and static_dir.is_dir():
+        app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+    else:
+        log.warning("Static directory not found: %s (skipping mount)", static_dir)
+
+    @app.get("/healthz")
+    def healthz():
+        return JSONResponse({"status": "ok"})
+
+    @app.on_event("startup")
+    def on_startup():
+        log.info("Application startup: checking optional DB initialization")
+        try:
+            # only auto-create in dev or when using sqlite for quick dev
+            if settings.environment == "dev" or settings.database_url.startswith("sqlite"):
+                SQLModel.metadata.create_all(engine)
+                log.info("Database tables ensured (create_all) using %s", settings.database_url)
+            else:
+                log.info("Skipping create_all in non-dev environment")
+        except Exception as exc:
+            log.exception("Database initialization skipped due to error: %s", exc)
+
+    return app
+
+app = create_app()
+
+=== ./project_dump.txt ===
+Project dump generated: Wed, Mar 11, 2026 12:47:36 PM
+
+
+=== ./.gitignore ===
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[codz]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+#   For a library or package, you might want to ignore these files since the code is
+#   intended to run in multiple environments; otherwise, check them in:
+# .python-version
+
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#Pipfile.lock
+
+# UV
+#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#uv.lock
+
+# poetry
+#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
+#poetry.lock
+#poetry.toml
+
+# pdm
+#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
+#   pdm recommends including project-wide configuration in pdm.toml, but excluding .pdm-python.
+#   https://pdm-project.org/en/latest/usage/project/#working-with-version-control
+#pdm.lock
+#pdm.toml
+.pdm-python
+.pdm-build/
+
+# pixi
+#   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
+#pixi.lock
+#   Pixi creates a virtual environment in the .pixi directory, just like venv module creates one
+#   in the .venv directory. It is recommended not to include this directory in version control.
+.pixi
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.envrc
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
+#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+#  and can be added to the global gitignore or merged into this file.  For a more nuclear
+#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
+#.idea/
+
+# Abstra
+# Abstra is an AI-powered process automation framework.
+# Ignore directories containing user credentials, local state, and settings.
+# Learn more at https://abstra.io/docs
+.abstra/
+
+# Visual Studio Code
+#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
+#  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
+#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
+#  you could uncomment the following to ignore the entire vscode folder
+# .vscode/
+
+# Ruff stuff:
+.ruff_cache/
+
+# PyPI configuration file
+.pypirc
+
+# Cursor
+#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
+#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
+#  refer to https://docs.cursor.com/context/ignore-files
+.cursorignore
+.cursorindexingignore
+
+# Marimo
+marimo/_static/
+marimo/_lsp/
+__marimo__/
+
+#db example content
+flags.db
+
+=== ./.pytest_cache/.gitignore ===
+# Created by pytest automatically.
+*
+
+
+=== ./.pytest_cache/CACHEDIR.TAG ===
+Signature: 8a477f597d28d172789f06886806bc55
+# This file is a cache directory tag created by pytest.
+# For information about cache directory tags, see:
+#	https://bford.info/cachedir/spec.html
+
+
+=== ./.pytest_cache/README.md ===
+# pytest cache directory #
+
+This directory contains data from the pytest's cache plugin,
+which provides the `--lf` and `--ff` options, as well as the `cache` fixture.
+
+**Do not** commit this to version control.
+
+See [the docs](https://docs.pytest.org/en/stable/how-to/cache.html) for more information.
+
+
+=== ./.pytest_cache/v/cache/nodeids ===
+[]
+
+=== ./app/api/flags.py ===
+# app/api/flags.py
+from datetime import datetime
+from typing import List
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlmodel import Session, select
+from sqlalchemy.exc import IntegrityError
+
+from app.db import get_session
+from app.models import Flag
+from app.schemas.flag import FlagCreate, FlagUpdate, FlagRead
+
+router = APIRouter(prefix="/flags", tags=["flags"])
+
+@router.get("", response_model=List[FlagRead])
+def list_flags(app_name: str, env: str, session: Session = Depends(get_session)):
+    stmt = select(Flag).where(Flag.app == app_name, Flag.env == env)
+    return session.exec(stmt).all()
+
+@router.get("/{flag_id}", response_model=FlagRead)
+def get_flag(flag_id: int, session: Session = Depends(get_session)):
+    f = session.get(Flag, flag_id)
+    if not f:
+        raise HTTPException(status_code=404, detail="Flag not found")
+    return f
+
+@router.post("", response_model=FlagRead, status_code=status.HTTP_201_CREATED)
+def create_flag(payload: FlagCreate, session: Session = Depends(get_session)):
+    f = Flag(
+        app=payload.app,
+        env=payload.env,
+        key=payload.key,
+        value=payload.value,
+        description=payload.description,
+    )
+    session.add(f)
+    try:
+        session.commit()
+    except IntegrityError:
+        session.rollback()
+        raise HTTPException(status_code=409, detail="Flag already exists for app/env/key")
+    session.refresh(f)
+    return f
+
+@router.put("/{flag_id}", response_model=FlagRead)
+def update_flag(flag_id: int, payload: FlagUpdate, session: Session = Depends(get_session)):
+    f = session.get(Flag, flag_id)
+    if not f:
+        raise HTTPException(status_code=404, detail="Flag not found")
+    if payload.version != f.version:
+        raise HTTPException(status_code=409, detail="Version mismatch")
+    updated = False
+    if payload.value is not None and payload.value != f.value:
+        f.value = payload.value
+        updated = True
+    if payload.description is not None and payload.description != f.description:
+        f.description = payload.description
+        updated = True
+    if updated:
+        f.version = f.version + 1
+        f.updated_at = datetime.utcnow()
+        session.add(f)
+        session.commit()
+        session.refresh(f)
+    return f
+
+@router.delete("/{flag_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_flag(flag_id: int, session: Session = Depends(get_session)):
+    f = session.get(Flag, flag_id)
+    if not f:
+        raise HTTPException(status_code=404, detail="Flag not found")
+    session.delete(f)
+    session.commit()
+    return None
+
+=== ./app/api/__init__.py ===
+# app/api/__init__.py
+from .flags import router as flags_router
+router = flags_router
+__all__ = ["flags_router", "router"]
+
+=== ./app/db.py ===
+# app/db.py
+from typing import Generator
+from sqlmodel import create_engine, Session
+from sqlalchemy.engine import Engine
+from app.settings import settings
+
+DATABASE_URL = settings.database_url
+
+# sqlite needs connect_args
+is_sqlite = DATABASE_URL.startswith("sqlite")
+connect_args = {"check_same_thread": False} if is_sqlite else {}
+
+engine: Engine = create_engine(DATABASE_URL, echo=settings.debug, connect_args=connect_args)
+
+def get_session() -> Generator[Session, None, None]:
+    with Session(engine) as session:
+        yield session
+
+=== ./app/models.py ===
+# app/models.py
+from typing import Optional
+from datetime import datetime
+from sqlmodel import SQLModel, Field
+from sqlalchemy import UniqueConstraint
+
+class Flag(SQLModel, table=True):
+    __table_args__ = (UniqueConstraint("app", "env", "key", name="uix_flag_app_env_key"),)
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    app: str
+    env: str
+    key: str
+    value: bool
+    description: str | None = None
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    version: int = Field(default=1)
+
+=== ./app/schemas/flag.py ===
+# app/schemas/flag.py
+from datetime import datetime
+from typing import Optional
+from pydantic import BaseModel
+
+class FlagBase(BaseModel):
+    app: str
+    env: str
+    key: str
+    value: bool
+    description: str | None = None
+
+class FlagCreate(FlagBase):
+    pass
+
+class FlagUpdate(BaseModel):
+    value: bool | None = None
+    description: str | None = None
+    version: int
+
+class FlagRead(FlagBase):
+    id: int
+    version: int
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+=== ./app/schemas/__init__.py ===
+from .flag import FlagCreate, FlagUpdate, FlagRead
+__all__ = ["FlagCreate", "FlagUpdate", "FlagRead"]
+
+
+=== ./app/settings.py ===
+# app/settings.py
+from pydantic_settings import BaseSettings
+
+class Settings(BaseSettings):
+    database_url: str = "sqlite:///./flags.db"
+    environment: str = "dev"  # dev | test | prod
+    debug: bool = True
+
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
+settings = Settings()
+
+=== ./app/__init__.py ===
+# app/__init__.py
+# package marker
+
+=== ./flags.db ===
+SQLite format 3   @                                                                     .Š   ó ó                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ‚
+ƒwtableflagflagCREATE TABLE flag (
+	id INTEGER NOT NULL, 
+	app VARCHAR NOT NULL, 
+	env VARCHAR NOT NULL, 
+	"key" VARCHAR NOT NULL, 
+	value BOOLEAN NOT NULL, 
+	description VARCHAR, 
+	updated_at DATETIME NOT NULL, 
+	version INTEGER NOT NULL, 
+	PRIMARY KEY (id)
+)Ë  Z’Ë                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ;	 A	demodevfeature_aapi test2026-03-03 13:03:07.9162626	 	Ademodevfeature_xon2026-03-03 12:47:54.6351787	 A	demodevfeature_ytest2026-03-03 12:47:38.518301   5	 A	demodevfeature_x2026-03-11 10:45:42.008755
+
+=== ./main.py ===
+# main.py
+import logging
+from pathlib import Path
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
+from starlette.staticfiles import StaticFiles
+
+from app.settings import settings
+from app.db import engine
+from sqlmodel import SQLModel
+
+# import router
+from app.api import router as flags_router
+
+log = logging.getLogger("uvicorn.error")
+
+def create_app() -> FastAPI:
+    app = FastAPI(title="ConfigServer")
+
+    # register routers
+    app.include_router(flags_router)
+
+    # static
+    project_root = Path(__file__).parent
+    static_dir = project_root / "static"
+    if static_dir.exists() and static_dir.is_dir():
+        app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+    else:
+        log.warning("Static directory not found: %s (skipping mount)", static_dir)
+
+    @app.get("/healthz")
+    def healthz():
+        return JSONResponse({"status": "ok"})
+
+    @app.on_event("startup")
+    def on_startup():
+        log.info("Application startup: checking optional DB initialization")
+        try:
+            # only auto-create in dev or when using sqlite for quick dev
+            if settings.environment == "dev" or settings.database_url.startswith("sqlite"):
+                SQLModel.metadata.create_all(engine)
+                log.info("Database tables ensured (create_all) using %s", settings.database_url)
+            else:
+                log.info("Skipping create_all in non-dev environment")
+        except Exception as exc:
+            log.exception("Database initialization skipped due to error: %s", exc)
+
+    return app
+
+app = create_app()
+
+=== ./project_dump.txt ===
+
+
+=== ./pyproject.toml ===
+[project]
+name = "configserver"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi[standard]>=0.134.0",
+    "sqlmodel>=0.0.37",
+]
+
+
+=== ./README.md ===
+# ConfigServer
+It allows applications to retrieve flags and rules at runtime (e.g., ), supports user targeting, percentage rollouts, and instant changes via push (SSE/WebSocket) or pull from a cache. Commercial (LaunchDarkly) and open-source (ConfigCat, Unleash) solutions demonstrate typical requirements and patterns.
+
+# In order to run the app in current state
+'''bash
+uv run python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
+'''
+
+# Using CRUD options
+### Get
+'''bash
+#list
+curl -sS "http://127.0.0.1:8000/flags?app_name=demo&env=dev"
+#by flag
+curl -sS "http://127.0.0.1:8000/flags/1"
+'''
+
+### Post
+'''bash
+curl -sS -X POST http://127.0.0.1:8000/flags \
+  -H "Content-Type: application/json" \
+  -d '{"app":"demo","env":"dev","key":"feature_z","value":true,"description":"test"}'"
+'''
+### Put
+'''bash
+curl -sS -X PUT http://127.0.0.1:8000/flags/1 \
+  -H "Content-Type: application/json" \
+  -d '{"value":false,"description":"turned off","version":2}'
+'''
+### Delete
+'''bash
+curl -sS -X DELETE http://127.0.0.1:8000/flags/3 -i
+'''
+
+# Requirements
+- uv package manager [link](https://docs.astral.sh/uv/getting-started/installation/#scoop)
+
+=== ./scripts/test_db.py ===
+# scripts/test_db.py
+import os
+from sqlmodel import SQLModel, Session, select
+from app.models import Flag
+from app.db import engine
+from app.settings import settings
+
+def run():
+    print("Using DATABASE_URL:", settings.database_url)
+    SQLModel.metadata.create_all(engine)
+    with Session(engine) as s:
+        f = Flag(app="demo", env="dev", key="feature_x", value=True)
+        s.add(f)
+        s.commit()
+        s.refresh(f)
+        print("Inserted id:", f.id)
+        rows = s.exec(select(Flag)).all()
+        print("Rows count:", len(rows))
+        for r in rows:
+            print(r)
+
+if __name__ == "__main__":
+    run()
+
+=== ./scripts/__init__.py ===
+# scripts/__init__.py
+# package marker so we can run python -m scripts.test_db
+
+=== ./static/index.html ===
+
+
+=== ./tests/pytest.ini ===
+# pytest.ini
+[pytest]
+minversion = 7.0
+addopts = -q
+testpaths = tests
+python_files = test_*.py
+
+=== ./tests/test_flags_api.py ===
+# tests/test_flags_api.py
+import os
+import tempfile
+from datetime import datetime
+
+import pytest
+from fastapi.testclient import TestClient
+from sqlmodel import SQLModel, create_engine, Session
+
+from main import create_app
+import app.models as models
+import app.api.flags as flags_module
+import app.db as db_module
+
+# Helper: create a temporary sqlite file engine and session dependency
+@pytest.fixture
+def temp_engine_and_override(monkeypatch):
+    # use a temporary file so multiple connections work on Windows
+    fd, path = tempfile.mkstemp(suffix=".db")
+    os.close(fd)
+    url = f"sqlite:///{path}"
+    engine = create_engine(url, connect_args={"check_same_thread": False})
+    SQLModel.metadata.create_all(engine)
+
+    # override get_session to use this engine
+    def get_session_override():
+        with Session(engine) as s:
+            yield s
+
+    monkeypatch.setattr(db_module, "engine", engine)
+    monkeypatch.setattr(db_module, "get_session", get_session_override)
+    yield engine, path
+
+    # cleanup
+    try:
+        os.remove(path)
+    except OSError:
+        pass
+
+@pytest.fixture
+def client(temp_engine_and_override):
+    app = create_app()
+    return TestClient(app)
+
+def test_crud_flow(client):
+    # 1) POST create
+    payload = {"app": "demo", "env": "dev", "key": "t_feature", "value": True, "description": "init"}
+    r = client.post("/flags", json=payload)
+    assert r.status_code == 201
+    created = r.json()
+    assert created["app"] == "demo"
+    assert created["key"] == "t_feature"
+    fid = created["id"]
+    version = created["version"]
+
+    # 2) GET by id
+    r = client.get(f"/flags/{fid}")
+    assert r.status_code == 200
+    assert r.json()["id"] == fid
+
+    # 3) GET list
+    r = client.get("/flags", params={"app_name": "demo", "env": "dev"})
+    assert r.status_code == 200
+    arr = r.json()
+    assert any(item["id"] == fid for item in arr)
+
+    # 4) PUT update with correct version
+    update_payload = {"value": False, "description": "turned off", "version": version}
+    r = client.put(f"/flags/{fid}", json=update_payload)
+    assert r.status_code == 200
+    updated = r.json()
+    assert updated["value"] is False
+    assert updated["version"] == version + 1
+
+    # 5) PUT stale update -> 409
+    stale_payload = {"value": True, "description": "stale", "version": version}
+    r = client.put(f"/flags/{fid}", json=stale_payload)
+    assert r.status_code == 409
+
+    # 6) DELETE
+    r = client.delete(f"/flags/{fid}")
+    assert r.status_code == 204
+
+    # 7) GET after delete -> 404
+    r = client.get(f"/flags/{fid}")
+    assert r.status_code == 404
+
+=== ./uv.lock ===
 version = 1
 revision = 3
 requires-python = ">=3.14"

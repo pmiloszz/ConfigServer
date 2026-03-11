@@ -1,6 +1,7 @@
 # app/schemas/flag.py
 from datetime import datetime
 from typing import Optional
+from pydantic import ConfigDict
 from pydantic import BaseModel
 
 class FlagBase(BaseModel):
@@ -23,5 +24,4 @@ class FlagRead(FlagBase):
     version: int
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

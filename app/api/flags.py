@@ -1,5 +1,5 @@
 # app/api/flags.py
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -58,7 +58,7 @@ def update_flag(flag_id: int, payload: FlagUpdate, session: Session = Depends(ge
         updated = True
     if updated:
         f.version = f.version + 1
-        f.updated_at = datetime.utcnow()
+        f.updated_at = datetime.now(timezone.utc)
         session.add(f)
         session.commit()
         session.refresh(f)

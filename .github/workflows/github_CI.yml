@@ -53,6 +53,25 @@ jobs:
       - name: Add repo root to PYTHONPATH (safety)
         run: echo "PYTHONPATH=${{ github.workspace }}" >> $GITHUB_ENV
 
+      - name: Set DATABASE_URL for CI
+        run: echo "DATABASE_URL=sqlite:///./test_flags.db" >> $GITHUB_ENV
+
+      - name: Enable Alembic usage in app
+        run: echo "USE_ALEMBIC=true" >> $GITHUB_ENV
+
+      - name: Install Alembic
+        run: |
+          python -m pip install --upgrade pip
+          pip install alembic
+
+      - name: Run Alembic migrations via uv
+        run: |
+          if command -v uv >/dev/null 2>&1; then
+            uv run alembic upgrade head
+          else
+            alembic upgrade head
+          fi
+
       - name: Run tests (pytest)
         run: |
           pytest -q --junitxml=report.xml

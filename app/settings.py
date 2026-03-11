@@ -1,4 +1,3 @@
-# app/settings.py
 from pydantic_settings import BaseSettings
 from pydantic import ConfigDict
 
@@ -7,5 +6,6 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./flags.db"
     environment: str = "dev"
     debug: bool = True
+    use_alembic: bool = False
 
 settings = Settings()

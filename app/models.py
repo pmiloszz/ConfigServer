@@ -1,6 +1,6 @@
 # app/models.py
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlmodel import SQLModel, Field
 from sqlalchemy import UniqueConstraint
 
@@ -13,5 +13,5 @@ class Flag(SQLModel, table=True):
     key: str
     value: bool
     description: str | None = None
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     version: int = Field(default=1)

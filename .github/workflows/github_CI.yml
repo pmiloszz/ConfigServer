@@ -7,7 +7,6 @@ on:
     branches: [ main, master ]
 
 env:
-  # tymczasowe opt-in do Node 24 (usuwa deprecation warnings)
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
@@ -15,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.11, 3.12]
+        python-version: [3.14]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,20 +39,23 @@ jobs:
           python -m pip install --upgrade pip
           pip freeze | sed -n '1,200p'
 
-      - name: Install dependencies
+      - name: Install build tools
         run: |
-          python -m pip install --upgrade pip
-          # prefer requirements.txt if present, otherwise install minimal deps
-          if [ -f "requirements.txt" ]; then
-            pip install -r requirements.txt
-          else
-            pip install pytest httpx fastapi sqlmodel sqlalchemy uvicorn
-          fi
+          python -m pip install --upgrade pip setuptools wheel
+
+      - name: Install project (editable) and test deps
+        run: |
+          # install package in editable mode so tests import project as installed package
+          pip install -e .
+          # install test extras if any (falls back to minimal test deps)
+          pip install -e ".[test]" || pip install pytest httpx
+
+      - name: Add repo root to PYTHONPATH (safety)
+        run: echo "PYTHONPATH=${{ github.workspace }}" >> $GITHUB_ENV
 
       - name: Run tests (pytest)
         run: |
           pytest -q --junitxml=report.xml
-        continue-on-error: false
 
       - name: Upload junit report
         if: always()

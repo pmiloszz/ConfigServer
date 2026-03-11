@@ -4,5 +4,30 @@ version = "0.1.0"
 requires-python = ">=3.14"
 dependencies = [
     "fastapi[standard]>=0.134.0",
+    "uvicorn==0.22.0",
     "sqlmodel>=0.0.37",
+    "sqlalchemy==2.0.48",
+    "pydantic==2.12.5",
 ]
+
+[project.optional-dependencies]
+test = [
+  "pytest==9.0.2",
+  "httpx==0.28.1",
+  "pytest-cov==4.1.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+#Install the top-level main.py module as py_module (so that `from main import create_app` works)
+py-modules = ["main"]
+
+
+[tool.setuptools.packages.find]
+# Find only packages starting with app (exclude static)
+where = ["."]
+include = ["app*"]
+exclude = ["static*"]

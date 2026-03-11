@@ -1,4 +1,4 @@
-Project dump generated: Wed, Mar 11, 2026  1:03:46 PM
+Project dump generated: Wed, Mar 11, 2026  1:25:00 PM
 
 
 === ./.github/workflows/github_CI.yml ===
@@ -9,6 +9,9 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   test:
@@ -29,22 +32,41 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml', '**/requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml','**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: Install dependencies
+      - name: Show Python and pip info (debug)
         run: |
+          python -V
+          pip -V
           python -m pip install --upgrade pip
-          if [ -f "pyproject.toml" ]; then
-            pip install .
-          fi
-          pip install pytest httpx sqlmodel sqlalchemy fastapi uvicorn
-      - name: Run tests
-        env:
-          PYTHONWARNINGS: default
+          pip freeze | sed -n '1,200p'
+
+      - name: Install build tools
         run: |
-          pytest -q --cov=app --cov-report=xml
+          python -m pip install --upgrade pip setuptools wheel
+
+      - name: Install project (editable) and test deps
+        run: |
+          # install package in editable mode so tests import project as installed package
+          pip install -e .
+          # install test extras if any
+          pip install -e ".[test]" || pip install pytest httpx
+
+      - name: Add repo root to PYTHONPATH (safety)
+        run: echo "PYTHONPATH=${{ github.workspace }}" >> $GITHUB_ENV
+
+      - name: Run tests (pytest)
+        run: |
+          pytest -q --junitxml=report.xml
+
+      - name: Upload junit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-report-${{ matrix.python-version }}
+          path: report.xml
 
 === ./.gitignore ===
 # Byte-compiled / optimized / DLL files
@@ -282,7 +304,9 @@ See [the docs](https://docs.pytest.org/en/stable/how-to/cache.html) for more inf
 
 
 === ./.pytest_cache/v/cache/nodeids ===
-[]
+[
+  "tests/test_flags_api.py::test_crud_flow"
+]
 
 === ./app/api/flags.py ===
 # app/api/flags.py
@@ -508,7 +532,7 @@ def create_app() -> FastAPI:
 app = create_app()
 
 === ./project_dump.txt ===
-Project dump generated: Wed, Mar 11, 2026  1:03:46 PM
+Project dump generated: Wed, Mar 11, 2026  1:25:00 PM
 
 
 === ./.github/workflows/github_CI.yml ===
@@ -519,6 +543,9 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   test:
@@ -539,22 +566,41 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml', '**/requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml','**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: Install dependencies
+      - name: Show Python and pip info (debug)
         run: |
+          python -V
+          pip -V
           python -m pip install --upgrade pip
-          if [ -f "pyproject.toml" ]; then
-            pip install .
-          fi
-          pip install pytest httpx sqlmodel sqlalchemy fastapi uvicorn
-      - name: Run tests
-        env:
-          PYTHONWARNINGS: default
+          pip freeze | sed -n '1,200p'
+
+      - name: Install build tools
         run: |
-          pytest -q --cov=app --cov-report=xml
+          python -m pip install --upgrade pip setuptools wheel
+
+      - name: Install project (editable) and test deps
+        run: |
+          # install package in editable mode so tests import project as installed package
+          pip install -e .
+          # install test extras if any
+          pip install -e ".[test]" || pip install pytest httpx
+
+      - name: Add repo root to PYTHONPATH (safety)
+        run: echo "PYTHONPATH=${{ github.workspace }}" >> $GITHUB_ENV
+
+      - name: Run tests (pytest)
+        run: |
+          pytest -q --junitxml=report.xml
+
+      - name: Upload junit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-report-${{ matrix.python-version }}
+          path: report.xml
 
 === ./.gitignore ===
 # Byte-compiled / optimized / DLL files
@@ -792,7 +838,9 @@ See [the docs](https://docs.pytest.org/en/stable/how-to/cache.html) for more inf
 
 
 === ./.pytest_cache/v/cache/nodeids ===
-[]
+[
+  "tests/test_flags_api.py::test_crud_flow"
+]
 
 === ./app/api/flags.py ===
 # app/api/flags.py
@@ -1027,9 +1075,30 @@ version = "0.1.0"
 requires-python = ">=3.14"
 dependencies = [
     "fastapi[standard]>=0.134.0",
+    "uvicorn==0.22.0",
     "sqlmodel>=0.0.37",
+    "sqlalchemy==2.0.48",
+    "pydantic==2.12.5",
 ]
 
+[project.optional-dependencies]
+test = [
+  "pytest==9.0.2",
+  "httpx==0.28.1",
+  "pytest-cov==4.1.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
+=== ./pytest.ini ===
+[pytest]
+minversion = 7.0
+addopts = -q
+testpaths = tests
+python_files = test_*.py
 
 === ./README.md ===
 # ConfigServer
@@ -1070,6 +1139,16 @@ curl -sS -X DELETE http://127.0.0.1:8000/flags/3 -i
 - uv package manager [link](https://docs.astral.sh/uv/getting-started/installation/#scoop)
 
 
+=== ./requirements.txt ===
+fastapi==0.134.0
+uvicorn==0.22.0
+sqlmodel==0.0.37
+sqlalchemy==2.0.48
+pydantic==2.12.5
+httpx==0.28.1
+pytest==9.0.2
+pytest-cov==4.1.0
+
 === ./scripts/test_db.py ===
 # scripts/test_db.py
 import os
@@ -1101,14 +1180,6 @@ if __name__ == "__main__":
 
 === ./static/index.html ===
 
-
-=== ./tests/pytest.ini ===
-# pytest.ini
-[pytest]
-minversion = 7.0
-addopts = -q
-testpaths = tests
-python_files = test_*.py
 
 === ./tests/test_flags_api.py ===
 # tests/test_flags_api.py

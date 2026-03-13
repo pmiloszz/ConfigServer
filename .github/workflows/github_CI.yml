@@ -54,7 +54,7 @@ jobs:
         run: echo "PYTHONPATH=${{ github.workspace }}" >> $GITHUB_ENV
 
       - name: Set DATABASE_URL for CI
-        run: echo "DATABASE_URL=sqlite:///./test_flags.db" >> $GITHUB_ENV
+        run: echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> $GITHUB_ENV
 
       - name: Enable Alembic usage in app
         run: echo "USE_ALEMBIC=true" >> $GITHUB_ENV

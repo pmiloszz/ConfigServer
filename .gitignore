@@ -211,3 +211,6 @@ flags.db
 
 #project dump
 project_dump.txt
+
+#environment variables
+.env

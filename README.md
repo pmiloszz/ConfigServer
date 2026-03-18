@@ -27,7 +27,7 @@ python -m uvicorn main:app --host 0.0.0.0 --port 8000
 + OpenAPI UI: http://127.0.0.1:8000/docs
 + Health endpoint: http://127.0.0.1:8000/health
 
-##Environment configuration
+## Environment configuration
 Files
 
 .env — local environment values, do not commit.

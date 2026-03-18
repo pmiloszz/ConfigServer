@@ -43,11 +43,12 @@ USE_ALEMBIC — true or false
 ENVIRONMENT — dev / prod / test
 
 ### Example .env.example
+```
 DATABASE_URL=sqlite:///./flags.db
 USE_ALEMBIC=false
 ENVIRONMENT=dev
 DEBUG=true
-
+```
 ## Using CRUD options
 ### Get
 ```bash

@@ -1,9 +1,10 @@
 # scripts/test_db.py
-import os
-from sqlmodel import SQLModel, Session, select
-from app.models import Flag
+from sqlmodel import Session, SQLModel, select
+
 from app.db import engine
+from app.models import Flag
 from app.settings import settings
+
 
 def run():
     print("Using DATABASE_URL:", settings.database_url)
@@ -18,6 +19,7 @@ def run():
         print("Rows count:", len(rows))
         for r in rows:
             print(r)
+
 
 if __name__ == "__main__":
     run()

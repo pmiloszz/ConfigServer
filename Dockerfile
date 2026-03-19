@@ -1,35 +1,36 @@
-# Use official Python 3.14 slim image
-FROM python:3.14-slim
+# --- Builder ---
+FROM ghcr.io/astral-sh/uv:python3.14-trixie-slim AS builder
 
-# Working directory
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UV_NO_DEV=1 \
+    UV_PYTHON_DOWNLOADS=0 \
+    UV_PROJECT_ENVIRONMENT=/opt/venv
+
 WORKDIR /app
 
-# Prevent Python from writing .pyc files and enable stdout/stderr buffering
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+# Install dependencies first (cached layer).
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --locked --no-install-project
 
-# Install system deps (sqlite tools optional)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libpq-dev \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+COPY . /app
 
-# Copy dependency metadata first to leverage Docker cache
-COPY pyproject.toml pyproject.toml
-COPY requirements.txt requirements.txt
+# Install the project (non-editable) into the image venv.
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --locked --no-editable
 
-# Install runtime dependencies
-RUN python -m pip install --upgrade pip setuptools wheel
-RUN pip install -r requirements.txt
+# --- Runtime ---
+FROM python:3.14-slim-trixie
 
-# Copy application code
-COPY . .
+ENV PATH="/opt/venv/bin:$PATH"
 
-# Make entrypoint executable if provided
-RUN chmod +x /app/docker-entrypoint.sh || true
-
+WORKDIR /app
 EXPOSE 8000
+
+COPY --from=builder /app /app
+COPY --from=builder /opt/venv /opt/venv
 
 # Default command: run migrations then start server
 CMD ["sh", "/app/docker-entrypoint.sh"]

@@ -1,11 +1,11 @@
-version: "3.8"
 services:
   web:
     build: .
+    working_dir: /app
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=sqlite:///./flags.db
+      - DATABASE_URL=sqlite:////app/flags.db
       - USE_ALEMBIC=false
     env_file:
       - .env
@@ -14,4 +14,4 @@ services:
       - ./flags.db:/app/flags.db
     command: >
       sh -c "if [ \"${USE_ALEMBIC}\" = \"true\" ]; then alembic upgrade head; fi &&
-             uvicorn main:app --host 0.0.0.0 --port 8000"
+             /opt/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000"

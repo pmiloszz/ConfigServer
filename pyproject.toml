@@ -8,26 +8,37 @@ dependencies = [
     "sqlmodel>=0.0.37",
     "sqlalchemy==2.0.48",
     "pydantic==2.12.5",
+    "pydantic-settings>=2.0.0",
+    "alembic>=1.18.4",
 ]
 
-[project.optional-dependencies]
-test = [
+[dependency-groups]
+dev = [
+  "ruff>=0.15.7",
+  "pre-commit>=4.5.1",
   "pytest==9.0.2",
   "httpx==0.28.1",
   "pytest-cov==4.1.0",
 ]
 
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.setuptools]
-#Install the top-level main.py module as py_module (so that `from main import create_app` works)
-py-modules = ["main"]
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
 
+[tool.ruff]
+line-length = 120
+exclude = ["alembic/versions"]
 
-[tool.setuptools.packages.find]
-# Find only packages starting with app (exclude static)
-where = ["."]
-include = ["app*"]
-exclude = ["static*"]
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+[tool.pytest.ini_options]
+minversion = "9.0"
+addopts = "-q --cov=app --cov-report=term-missing"
+testpaths = ["tests"]

@@ -1,7 +1,9 @@
 # app/db.py
-from typing import Generator
-from sqlmodel import create_engine, Session
+from collections.abc import Generator
+
 from sqlalchemy.engine import Engine
+from sqlmodel import Session, create_engine
+
 from app.settings import settings
 
 DATABASE_URL = settings.database_url
@@ -12,6 +14,7 @@ connect_args = {"check_same_thread": False} if is_sqlite else {}
 
 engine: Engine = create_engine(DATABASE_URL, echo=settings.debug, connect_args=connect_args)
 
-def get_session() -> Generator[Session, None, None]:
+
+def get_session() -> Generator[Session]:
     with Session(engine) as session:
         yield session

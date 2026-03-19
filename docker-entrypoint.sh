@@ -8,4 +8,4 @@ if [ "${USE_ALEMBIC:-false}" = "true" ]; then
 fi
 
 # Start the app (use uv if you prefer)
-exec uvicorn main:app --host 0.0.0.0 --port 8000
+exec /opt/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000

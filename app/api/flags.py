@@ -1,74 +1,87 @@
 # app/api/flags.py
-from datetime import datetime, timezone
-from typing import List
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlmodel import Session, select
-from sqlalchemy.exc import IntegrityError
+from sqlmodel import Session
 
 from app.db import get_session
-from app.models import Flag
-from app.schemas.flag import FlagCreate, FlagUpdate, FlagRead
+from app.repositories.flag_repository import FlagRepository
+from app.repositories.flag_repository_base import FlagRepositoryBase
+from app.schemas.flag import FlagCreate, FlagRead, FlagUpdate
+from app.services.exceptions import (
+    FlagAlreadyExists,
+    FlagNotFound,
+    VersionConflict,
+)
+from app.services.flag_service import FlagService
 
 router = APIRouter(prefix="/flags", tags=["flags"])
 
-@router.get("", response_model=List[FlagRead])
-def list_flags(app_name: str, env: str, session: Session = Depends(get_session)):
-    stmt = select(Flag).where(Flag.app == app_name, Flag.env == env)
-    return session.exec(stmt).all()
+
+def get_flag_repository(
+    session: Annotated[Session, Depends(get_session)],
+) -> FlagRepositoryBase:
+    return FlagRepository(session)
+
+
+def get_flag_service(
+    repo: Annotated[FlagRepositoryBase, Depends(get_flag_repository)],
+) -> FlagService:
+    return FlagService(repo)
+
+
+@router.get("", response_model=list[FlagRead])
+def list_flags(
+    app_name: str,
+    env: str,
+    service: Annotated[FlagService, Depends(get_flag_service)],
+):
+    return service.list_flags(app_name=app_name, env=env)
+
 
 @router.get("/{flag_id}", response_model=FlagRead)
-def get_flag(flag_id: int, session: Session = Depends(get_session)):
-    f = session.get(Flag, flag_id)
-    if not f:
-        raise HTTPException(status_code=404, detail="Flag not found")
-    return f
+def get_flag(
+    flag_id: int,
+    service: Annotated[FlagService, Depends(get_flag_service)],
+):
+    try:
+        return service.get_flag(flag_id)
+    except FlagNotFound as err:
+        raise HTTPException(status_code=404, detail=str(err)) from err
+
 
 @router.post("", response_model=FlagRead, status_code=status.HTTP_201_CREATED)
-def create_flag(payload: FlagCreate, session: Session = Depends(get_session)):
-    f = Flag(
-        app=payload.app,
-        env=payload.env,
-        key=payload.key,
-        value=payload.value,
-        description=payload.description,
-    )
-    session.add(f)
+def create_flag(
+    payload: FlagCreate,
+    service: Annotated[FlagService, Depends(get_flag_service)],
+):
     try:
-        session.commit()
-    except IntegrityError:
-        session.rollback()
-        raise HTTPException(status_code=409, detail="Flag already exists for app/env/key")
-    session.refresh(f)
-    return f
+        return service.create_flag(payload)
+    except FlagAlreadyExists as err:
+        raise HTTPException(status_code=409, detail=str(err)) from err
+
 
 @router.put("/{flag_id}", response_model=FlagRead)
-def update_flag(flag_id: int, payload: FlagUpdate, session: Session = Depends(get_session)):
-    f = session.get(Flag, flag_id)
-    if not f:
-        raise HTTPException(status_code=404, detail="Flag not found")
-    if payload.version != f.version:
-        raise HTTPException(status_code=409, detail="Version mismatch")
-    updated = False
-    if payload.value is not None and payload.value != f.value:
-        f.value = payload.value
-        updated = True
-    if payload.description is not None and payload.description != f.description:
-        f.description = payload.description
-        updated = True
-    if updated:
-        f.version = f.version + 1
-        f.updated_at = datetime.now(timezone.utc)
-        session.add(f)
-        session.commit()
-        session.refresh(f)
-    return f
+def update_flag(
+    flag_id: int,
+    payload: FlagUpdate,
+    service: Annotated[FlagService, Depends(get_flag_service)],
+):
+    try:
+        return service.update_flag(flag_id, payload)
+    except FlagNotFound as err:
+        raise HTTPException(status_code=404, detail=str(err)) from err
+    except VersionConflict as err:
+        raise HTTPException(status_code=409, detail=str(err)) from err
+
 
 @router.delete("/{flag_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_flag(flag_id: int, session: Session = Depends(get_session)):
-    f = session.get(Flag, flag_id)
-    if not f:
-        raise HTTPException(status_code=404, detail="Flag not found")
-    session.delete(f)
-    session.commit()
+def delete_flag(
+    flag_id: int,
+    service: Annotated[FlagService, Depends(get_flag_service)],
+):
+    try:
+        service.delete_flag(flag_id)
+    except FlagNotFound as err:
+        raise HTTPException(status_code=404, detail=str(err)) from err
     return None

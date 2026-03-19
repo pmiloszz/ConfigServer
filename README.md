@@ -8,20 +8,17 @@
 ```bash
 cp .env.example .env
 ```
-2. Install depencecies
+2. Install dependencies
 ```
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+uv sync
 ```
 3. Run database migrations
 ```
-python -m alembic upgrade head
+uv run alembic upgrade head
 ```
 4. Start the server
 ```bash
 uv run uvicorn main:app --host 0.0.0.0 --port 8000
-# or
-python -m uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 5. Verify
 + OpenAPI UI: http://127.0.0.1:8000/docs
@@ -75,5 +72,14 @@ curl -sS -X PUT http://127.0.0.1:8000/flags/1 \
 curl -sS -X DELETE http://127.0.0.1:8000/flags/3 -i
 ```
 
-# Requirements
+## Requirements
 - uv package manager [link](https://docs.astral.sh/uv/getting-started/installation/#scoop)
+
+## Developer setup (one-time)
+
+To enable automated lint fixes with pre-commit:
+
+```bash
+uv sync --dev
+uv run pre-commit install
+```

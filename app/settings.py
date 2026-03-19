@@ -1,5 +1,6 @@
-from pydantic_settings import BaseSettings
 from pydantic import ConfigDict
+from pydantic_settings import BaseSettings
+
 
 class Settings(BaseSettings):
     model_config = ConfigDict(env_file=".env", env_file_encoding="utf-8")
@@ -7,5 +8,6 @@ class Settings(BaseSettings):
     environment: str = "dev"
     debug: bool = True
     use_alembic: bool = False
+
 
 settings = Settings()

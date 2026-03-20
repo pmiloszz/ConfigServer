@@ -10,33 +10,36 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Lint (ruff)
+      - name: "Set up Ruff"
         uses: astral-sh/ruff-action@v3
-        with:
-          args: "check --output-format=github ."
+
+      - name: Lint (ruff)
+        run: ruff check --output-format=github .
 
       - name: Format check (ruff)
-        uses: astral-sh/ruff-action@v3
-        with:
-          args: "format --check --diff ."
+        run: ruff format --check --diff .
 
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.14]
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+
+      - name: "Set up Python"
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: ".python-version"
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
-          python-version-file: ".python-version"
+          enable-cache: true
 
       - name: Install dependencies + dev
         run: uv sync --locked --dev
@@ -55,7 +58,7 @@ jobs:
 
       - name: Upload junit report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: pytest-report-${{ matrix.python-version }}
+          name: pytest-report
           path: report.xml

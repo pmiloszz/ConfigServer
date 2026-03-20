@@ -5,7 +5,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=sqlite:////app/flags.db
+      - DATABASE_URL=sqlite:///./flags.db
       - USE_ALEMBIC=false
     env_file:
       - .env

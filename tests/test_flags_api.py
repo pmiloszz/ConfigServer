@@ -31,3 +31,26 @@ def test_crud_flow(client):
 
     r = client.get(f"/flags/{fid}")
     assert r.status_code == 404
+
+
+def test_create_duplicate_returns_409(client):
+    payload = {"app": "demo", "env": "dev", "key": "dup_key", "value": True, "description": "first"}
+    r = client.post("/flags", json=payload)
+    assert r.status_code == 201
+
+    r = client.post("/flags", json=payload)
+    assert r.status_code == 409
+    assert "already exists" in r.json()["detail"].lower()
+
+
+def test_update_nonexistent_returns_404(client):
+    update_payload = {"value": False, "description": "missing", "version": 1}
+    r = client.put("/flags/999999", json=update_payload)
+    assert r.status_code == 404
+    assert "not found" in r.json()["detail"].lower()
+
+
+def test_delete_nonexistent_returns_404(client):
+    r = client.delete("/flags/999999")
+    assert r.status_code == 404
+    assert "not found" in r.json()["detail"].lower()

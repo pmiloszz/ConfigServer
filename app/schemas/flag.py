@@ -1,8 +1,8 @@
 # app/schemas/flag.py
 from datetime import datetime
-from typing import Optional
-from pydantic import ConfigDict
-from pydantic import BaseModel
+
+from pydantic import BaseModel, ConfigDict
+
 
 class FlagBase(BaseModel):
     app: str
@@ -11,13 +11,16 @@ class FlagBase(BaseModel):
     value: bool
     description: str | None = None
 
+
 class FlagCreate(FlagBase):
     pass
+
 
 class FlagUpdate(BaseModel):
     value: bool | None = None
     description: str | None = None
     version: int
+
 
 class FlagRead(FlagBase):
     id: int

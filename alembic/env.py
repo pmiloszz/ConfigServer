@@ -1,19 +1,14 @@
 # alembic/env.py
 from logging.config import fileConfig
-import os
-import sys
 
-from sqlalchemy import pool
+from sqlmodel import SQLModel
+
 from alembic import context
-
-# Make project root importable so we can import app modules
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Import engine and settings from the application
 # Use the same engine the app uses so migrations run against the same DB URL and options
 from app.db import engine
 from app.settings import settings
-from sqlmodel import SQLModel
 
 # Use SQLModel.metadata as the target for autogenerate
 target_metadata = SQLModel.metadata
@@ -22,6 +17,7 @@ target_metadata = SQLModel.metadata
 config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
+
 
 def run_migrations_offline():
     """
@@ -38,6 +34,7 @@ def run_migrations_offline():
     with context.begin_transaction():
         context.run_migrations()
 
+
 def run_migrations_online():
     """
     Run migrations in 'online' mode using the engine created by app.db.
@@ -52,6 +49,7 @@ def run_migrations_online():
         )
         with context.begin_transaction():
             context.run_migrations()
+
 
 if context.is_offline_mode():
     run_migrations_offline()

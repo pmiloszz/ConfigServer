@@ -1,25 +1,24 @@
 # main.py
 import logging
-from pathlib import Path
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from sqlmodel import SQLModel
 from starlette.staticfiles import StaticFiles
 
-from app.settings import settings
+# router
+from app.api.flags import router as flags_router
 from app.db import engine
-from sqlmodel import SQLModel
-
-# import router
-from app.api import router as flags_router
+from app.settings import settings
 
 log = logging.getLogger("uvicorn.error")
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     """
     Application lifespan handler: deterministic startup and shutdown.
 
@@ -46,7 +45,6 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     # shutdown hook (extend if you need to close resources)
     log.info("Application shutdown complete")
-
 
 
 def create_app() -> FastAPI:

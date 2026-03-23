@@ -1,40 +1,3 @@
-# tests/test_flags_api.py
-import os
-import tempfile
-from sqlmodel import SQLModel, create_engine, Session
-from fastapi.testclient import TestClient
-import pytest
-
-from main import create_app
-import app.db as db_module
-from app import models as models_module
-
-@pytest.fixture
-def temp_engine_and_override(monkeypatch):
-    fd, path = tempfile.mkstemp(suffix=".db")
-    os.close(fd)
-    url = f"sqlite:///{path}"
-    engine = create_engine(url, connect_args={"check_same_thread": False})
-    SQLModel.metadata.create_all(engine)
-
-    def get_session_override():
-        with Session(engine) as s:
-            yield s
-
-    monkeypatch.setattr(db_module, "engine", engine)
-    monkeypatch.setattr(db_module, "get_session", get_session_override)
-    yield engine, path
-
-    try:
-        os.remove(path)
-    except OSError:
-        pass
-
-@pytest.fixture
-def client(temp_engine_and_override):
-    app = create_app()
-    return TestClient(app)
-
 def test_crud_flow(client):
     payload = {"app": "demo", "env": "dev", "key": "t_feature", "value": True, "description": "init"}
     r = client.post("/flags", json=payload)
@@ -68,3 +31,26 @@ def test_crud_flow(client):
 
     r = client.get(f"/flags/{fid}")
     assert r.status_code == 404
+
+
+def test_create_duplicate_returns_409(client):
+    payload = {"app": "demo", "env": "dev", "key": "dup_key", "value": True, "description": "first"}
+    r = client.post("/flags", json=payload)
+    assert r.status_code == 201
+
+    r = client.post("/flags", json=payload)
+    assert r.status_code == 409
+    assert "already exists" in r.json()["detail"].lower()
+
+
+def test_update_nonexistent_returns_404(client):
+    update_payload = {"value": False, "description": "missing", "version": 1}
+    r = client.put("/flags/999999", json=update_payload)
+    assert r.status_code == 404
+    assert "not found" in r.json()["detail"].lower()
+
+
+def test_delete_nonexistent_returns_404(client):
+    r = client.delete("/flags/999999")
+    assert r.status_code == 404
+    assert "not found" in r.json()["detail"].lower()

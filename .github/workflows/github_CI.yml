@@ -10,52 +10,74 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
-      - name: "Set up Ruff"
+      - name: Set up Ruff
         uses: astral-sh/ruff-action@v3
 
-      - name: Lint (ruff)
+      - name: Lint
         run: ruff check --output-format=github .
 
-      - name: Format check (ruff)
+      - name: Format check
         run: ruff format --check --diff .
 
   test:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
 
-      - name: "Set up Python"
-        uses: actions/setup-python@v6
+    # GitHub Actions "service containers" run as Docker containers alongside
+    # your job. The PostgreSQL container starts before any steps run and is
+    # reachable at localhost:5432 within the job's steps.
+    # This means tests run against real PostgreSQL — the same engine used
+    # in production — instead of SQLite. Catches dialect-specific bugs early.
+    services:
+      db:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: configserver
+          POSTGRES_PASSWORD: configserver
+          POSTGRES_DB: flags
+        ports:
+          - 5432:5432
+        # The healthcheck tells GitHub Actions to wait until PostgreSQL is
+        # accepting connections before running any steps.
+        # Without this, the first step might start before the DB is ready.
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
         with:
           python-version-file: ".python-version"
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
+      - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
 
-      - name: Install dependencies + dev
+      - name: Install dependencies
         run: uv sync --locked --dev
 
-      - name: Set DATABASE_URL for CI
-        run: echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> $GITHUB_ENV
+      - name: Point app at the CI PostgreSQL
+        # This env var is picked up by conftest.py (and alembic/env.py via
+        # app/settings.py). No secrets needed — these are CI-only credentials
+        # that only exist inside this ephemeral runner.
+        run: |
+          echo "DATABASE_URL=postgresql+psycopg://configserver:configserver@localhost:5432/flags" >> $GITHUB_ENV
+          echo "USE_ALEMBIC=true" >> $GITHUB_ENV
 
-      - name: Enable Alembic usage in app
-        run: echo "USE_ALEMBIC=true" >> $GITHUB_ENV
-
-      - name: Run Alembic migrations via uv
+      - name: Run Alembic migrations
         run: uv run alembic upgrade head
 
-      - name: Run tests (pytest)
+      - name: Run tests
         run: uv run pytest -q --junitxml=report.xml
 
-      - name: Upload junit report
+      - name: Upload test report
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: pytest-report
           path: report.xml

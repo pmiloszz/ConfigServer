@@ -1,17 +1,43 @@
 services:
+
+  # --- Database ---
+  # PostgreSQL runs as its own container. The app container connects to it
+  # over Docker's internal network using the service name "db" as the hostname.
+  db:
+    image: postgres:17-alpine          # alpine = smaller image, same Postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: configserver
+      POSTGRES_PASSWORD: configserver  # fine for local dev; use secrets in prod
+      POSTGRES_DB: flags
+    ports:
+      - "5432:5432"                    # expose so you can connect with DBeaver/psql locally
+    volumes:
+      - postgres_data:/var/lib/postgresql/data   # data survives container restarts
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U configserver -d flags"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # --- Application ---
   web:
     build: .
     working_dir: /app
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=sqlite:///./flags.db
-      - USE_ALEMBIC=false
+      # Use the db service name as hostname — Docker resolves it automatically
+      DATABASE_URL: postgresql+psycopg://configserver:configserver@db:5432/flags
+      USE_ALEMBIC: "true"              # always run migrations in containerised setup
+      ENVIRONMENT: dev
+      DEBUG: "true"
     env_file:
-      - .env
-    volumes:
-      - .:/app:rw
-      - ./flags.db:/app/flags.db
-    command: >
-      sh -c "if [ \"${USE_ALEMBIC}\" = \"true\" ]; then alembic upgrade head; fi &&
-             /opt/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000"
+      - .env                           # .env values override the above if present
+    depends_on:
+      db:
+        condition: service_healthy     # wait for postgres to be ready before starting
+    restart: unless-stopped
+
+volumes:
+  postgres_data:                       # named volume managed by Docker

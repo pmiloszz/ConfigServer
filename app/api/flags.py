@@ -1,7 +1,7 @@
 # app/api/flags.py
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import Session
 
 from app.db import get_session
@@ -16,6 +16,11 @@ from app.services.exceptions import (
 from app.services.flag_service import FlagService
 
 router = APIRouter(prefix="/flags", tags=["flags"])
+
+# Hard cap: no single request can pull more than this many flags.
+# FastAPI enforces ge/le at the validation layer — requests outside
+# this range get an automatic 422 Unprocessable Entity response.
+_MAX_FLAGS_PER_REQUEST = 500
 
 
 def get_flag_repository(
@@ -35,8 +40,16 @@ def list_flags(
     app_name: str,
     env: str,
     service: Annotated[FlagService, Depends(get_flag_service)],
+    limit: Annotated[
+        int,
+        Query(
+            ge=1,
+            le=_MAX_FLAGS_PER_REQUEST,
+            description=f"Max flags to return (1–{_MAX_FLAGS_PER_REQUEST}).",
+        ),
+    ] = 200,
 ):
-    return service.list_flags(app_name=app_name, env=env)
+    return service.list_flags(app_name=app_name, env=env, limit=limit)
 
 
 @router.get("/{flag_id}", response_model=FlagRead)

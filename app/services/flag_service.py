@@ -1,3 +1,4 @@
+# app/services/flag_service.py
 from datetime import UTC, datetime
 
 from app.models import Flag
@@ -10,8 +11,8 @@ class FlagService:
     def __init__(self, repo: FlagRepositoryBase) -> None:
         self._repo = repo
 
-    def list_flags(self, app_name: str, env: str) -> list[Flag]:
-        return self._repo.list_by_app_env(app_name=app_name, env=env)
+    def list_flags(self, app_name: str, env: str, limit: int = 200) -> list[Flag]:
+        return self._repo.list_by_app_env(app_name=app_name, env=env, limit=limit)
 
     def get_flag(self, flag_id: int) -> Flag:
         f = self._repo.get_by_id(flag_id)
@@ -52,3 +53,9 @@ class FlagService:
     def delete_flag(self, flag_id: int) -> None:
         f = self.get_flag(flag_id)
         self._repo.delete(f)
+
+    def list_apps(self) -> list[str]:
+        return self._repo.list_apps()
+
+    def list_envs(self, app_name: str) -> list[str]:
+        return self._repo.list_envs(app_name=app_name)

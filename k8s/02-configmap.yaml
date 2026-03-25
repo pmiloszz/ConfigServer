@@ -1,0 +1,21 @@
+# k8s/02-configmap.yaml
+#
+# ConfigMap holds non-sensitive configuration. Anything that can be seen
+# in plain text without security concerns belongs here.
+# Sensitive values (passwords, API keys) go in the Secret instead.
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configserver-config
+  namespace: configserver
+data:
+  ENVIRONMENT: "prod"
+  DEBUG: "false"
+  USE_ALEMBIC: "true"
+  POSTGRES_USER: "configserver"
+  POSTGRES_DB: "flags"
+  # The app Service is reachable inside the cluster at:
+  # postgres-service.<namespace>.svc.cluster.local
+  # Kubernetes DNS resolves the short form "postgres-service" within the same namespace.
+  DATABASE_URL: "postgresql+psycopg://configserver:$(POSTGRES_PASSWORD)@postgres-service:5432/flags"

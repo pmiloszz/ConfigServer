@@ -1,0 +1,85 @@
+# k8s/04-postgres-statefulset.yaml
+#
+# StatefulSet vs Deployment — why PostgreSQL uses StatefulSet:
+#
+#   Deployment  → pods are interchangeable, can be created/deleted in any order,
+#                 get random names. Good for stateless apps.
+#   StatefulSet → pods get stable names (postgres-0, postgres-1...) and each
+#                 gets its own stable storage. Essential for databases where
+#                 the data must survive pod restarts and where you might later
+#                 add replicas that need to know which one is primary.
+#
+# This runs a single replica (no replication). For high availability you'd
+# add a replica and a connection pooler like PgBouncer — out of scope here.
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: configserver
+  labels:
+    app: postgres
+spec:
+  serviceName: postgres-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:17-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: configserver-config
+                  key: POSTGRES_USER
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: configserver-config
+                  key: POSTGRES_DB
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: configserver-secret
+                  key: POSTGRES_PASSWORD
+            # Tune shared_buffers for a small workload.
+            # Default is 128MB; 64MB is fine for a flag store.
+            - name: POSTGRES_INITDB_ARGS
+              value: "--encoding=UTF8 --locale=C"
+          resources:
+            requests:
+              cpu: 100m       # 100 millicores = 0.1 CPU core
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+          # Liveness: restart the pod if postgres stops accepting connections
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "configserver", "-d", "flags"]
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
+          # Readiness: only route traffic to this pod when postgres is ready
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "configserver", "-d", "flags"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-pvc

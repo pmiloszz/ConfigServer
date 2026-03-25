@@ -1,0 +1,29 @@
+# k8s/03-postgres-pvc.yaml
+#
+# A PersistentVolumeClaim (PVC) is a request for storage.
+# The cluster fulfills it by binding a PersistentVolume (PV) — actual disk.
+#
+# Why this matters: without persistent storage, every time the postgres pod
+# restarts it starts with an empty database. The PVC decouples the pod
+# lifecycle from the data lifecycle — the pod can die and come back, and
+# the data is still there on the bound volume.
+#
+# StorageClass "standard" works on most local clusters (minikube, kind).
+# On cloud providers use their equivalent:
+#   AWS EKS  → gp3
+#   GKE      → standard-rwo
+#   AKS      → managed-premium
+# Check available classes: kubectl get storageclass
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: configserver
+spec:
+  accessModes:
+    - ReadWriteOnce    # one node can mount this at a time — correct for a single postgres pod
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 2Gi   # 2 GiB is generous for a feature flag store

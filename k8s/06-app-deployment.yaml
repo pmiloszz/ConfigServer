@@ -1,0 +1,115 @@
+# k8s/06-app-deployment.yaml
+#
+# Deployment manages the application pods.
+# Key differences from the postgres StatefulSet:
+#   - replicas: 2 — Kubernetes runs two identical pods and load-balances
+#     between them. If one crashes, the other keeps serving traffic while
+#     K8s brings the dead one back.
+#   - RollingUpdate strategy — when you push a new image, K8s starts new
+#     pods with the new version before killing old ones. Zero downtime.
+#   - maxUnavailable: 0 — never take a pod down unless a new one is ready.
+#     Combined with maxSurge: 1, this means: briefly run 3 pods during
+#     a rollout (2 old + 1 new), then 2 new once old ones are removed.
+#
+# IMPORTANT — before applying, replace the image with your actual registry:
+#   image: your-registry.io/configserver:latest
+# If using minikube: run `eval $(minikube docker-env)` and build locally.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: configserver
+  namespace: configserver
+  labels:
+    app: configserver
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: configserver
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: configserver
+    spec:
+      # Init container runs Alembic migrations before the app starts.
+      # This ensures migrations complete exactly once per rollout, not
+      # once per replica — two replicas running migrations simultaneously
+      # would cause race conditions on the alembic_version table.
+      # The init container runs to completion, THEN the app containers start.
+      initContainers:
+        - name: migrate
+          image: your-registry.io/configserver:latest   # same image as main app
+          command: ["alembic", "upgrade", "head"]
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: configserver-secret
+                  key: POSTGRES_PASSWORD
+            - name: DATABASE_URL
+              value: "postgresql+psycopg://configserver:$(POSTGRES_PASSWORD)@postgres-service:5432/flags"
+            - name: USE_ALEMBIC
+              value: "true"
+
+      containers:
+        - name: configserver
+          image: your-registry.io/configserver:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: configserver-secret
+                  key: POSTGRES_PASSWORD
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: configserver-secret
+                  key: API_KEY
+            - name: DATABASE_URL
+              value: "postgresql+psycopg://configserver:$(POSTGRES_PASSWORD)@postgres-service:5432/flags"
+            - name: ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: configserver-config
+                  key: ENVIRONMENT
+            - name: DEBUG
+              valueFrom:
+                configMapKeyRef:
+                  name: configserver-config
+                  key: DEBUG
+            - name: USE_ALEMBIC
+              valueFrom:
+                configMapKeyRef:
+                  name: configserver-config
+                  key: USE_ALEMBIC
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          # Liveness: if /healthz stops responding, restart the pod
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            failureThreshold: 3
+          # Readiness: only send traffic to this pod when it's ready to serve
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3

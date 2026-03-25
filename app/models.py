@@ -14,5 +14,6 @@ class Flag(SQLModel, table=True):
     key: str
     value: bool
     description: str | None = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     version: int = Field(default=1)

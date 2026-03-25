@@ -25,6 +25,7 @@ class FlagUpdate(BaseModel):
 class FlagRead(FlagBase):
     id: int
     version: int
+    created_at: datetime
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

@@ -1,0 +1,38 @@
+# docker-compose.dev.yml
+#
+# Development override — mounts source code so changes take effect instantly,
+# no rebuild needed.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# How hot reload works:
+#   The app directory is mounted as a volume into the container. uvicorn's
+#   --reload flag watches for .py file changes and restarts automatically.
+#
+#   On Windows (WSL2 or MINGW64), filesystem events from the host don't always
+#   propagate to Linux containers. WATCHFILES_FORCE_POLLING=true switches from
+#   inotify (event-based) to polling (checks every second). Slightly higher CPU
+#   usage but works reliably on Windows.
+#
+# What this does NOT cover:
+#   - Dependency changes (pyproject.toml / uv.lock) still need --build
+#   - Alembic migration changes still need `docker compose exec web alembic upgrade head`
+
+services:
+  web:
+    volumes:
+      # Mount the source directories that change during development.
+      # The container's /opt/venv (installed packages) is NOT mounted —
+      # it stays as built, which is correct.
+      - ./app:/app/app
+      - ./main.py:/app/main.py
+      - ./static:/app/static
+      - ./alembic:/app/alembic
+      - ./alembic.ini:/app/alembic.ini
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app"
+    environment:
+      WATCHFILES_FORCE_POLLING: "true"
+      DEBUG: "true"

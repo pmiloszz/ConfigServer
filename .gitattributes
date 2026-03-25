@@ -1,0 +1,34 @@
+###############################################################################
+# Line endings policy (cross-platform)
+#
+# Goal: keep the *repository* normalized to LF so CI (Linux) and containers
+# behave consistently, while still allowing Windows-native scripts to be CRLF.
+###############################################################################
+
+# Auto-detect text files and normalize to LF in the repo.
+* text=auto eol=lf
+
+# Common text formats (explicit).
+*.py          text eol=lf
+*.yml         text eol=lf
+*.yaml        text eol=lf
+*.toml        text eol=lf
+*.md          text eol=lf
+*.txt         text eol=lf
+Dockerfile    text eol=lf
+*.dockerfile  text eol=lf
+*.sh          text eol=lf
+
+# Windows-native scripts should be CRLF in the working tree.
+*.ps1         text eol=crlf
+*.bat         text eol=crlf
+*.cmd         text eol=crlf
+
+# Treat images and other binaries as binary (no EOL conversion).
+*.png         binary
+*.jpg         binary
+*.jpeg        binary
+*.gif         binary
+*.webp        binary
+*.ico         binary
+

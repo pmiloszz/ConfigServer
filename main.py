@@ -4,13 +4,14 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.responses import JSONResponse
 from sqlmodel import SQLModel
 from starlette.staticfiles import StaticFiles
 
 from app.api.apps import router as apps_router
 from app.api.flags import router as flags_router
+from app.auth import require_api_key
 from app.db import engine
 from app.settings import settings
 
@@ -40,8 +41,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 def create_app() -> FastAPI:
     application = FastAPI(title="ConfigServer", lifespan=lifespan)
 
-    application.include_router(flags_router)
-    application.include_router(apps_router)
+    application.include_router(flags_router, dependencies=[Depends(require_api_key)])
+    application.include_router(apps_router, dependencies=[Depends(require_api_key)])
 
     project_root = Path(__file__).parent
     static_dir = project_root / "static"

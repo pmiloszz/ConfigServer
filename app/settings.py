@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     environment: str = "dev"
     debug: bool = True
     use_alembic: bool = False
+    api_key: str = ""
 
 
 settings = Settings()

@@ -41,7 +41,8 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: /healthz
+              # Frontend readiness should not depend on backend availability.
+              path: /static/index.html
               port: 80
             initialDelaySeconds: 5
             periodSeconds: 5

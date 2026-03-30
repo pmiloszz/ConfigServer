@@ -6,7 +6,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: standard
+  # Use the cluster default StorageClass (portable across clusters).
   resources:
     requests:
       storage: 2Gi

@@ -265,9 +265,9 @@ kubectl apply -k k8s/feature-flags/overlays/prod
 # 4. Check everything is running
 kubectl get all -n feature-flags
 
-# 5. Access locally (port-forward; service is ClusterIP)
-kubectl port-forward -n feature-flags svc/feature-flags-svc 8000:80
-# Then open: http://localhost:8000/static/index.html
+# 5. Access locally (dev/prod overlays use LoadBalancer on the frontend Service)
+# kubectl get svc -n feature-flags feature-flags-svc
+# Then open http://<EXTERNAL-IP>/static/index.html (Docker Desktop often uses localhost)
 ```
 
 ### Useful kubectl commands

@@ -1,14 +1,23 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+# Private GHCR images: create pull secret before apply (PAT needs read:packages):
+# kubectl create secret docker-registry ghcr-credentials -n feature-flags \
+#   --docker-server=ghcr.io --docker-username=YOUR_GITHUB_USER \
+#   --docker-password=ghp_xxx
+
 resources:
   - ../../base
   - ingress.yaml
   - tls-secret.yaml
 
+patches:
+  - path: patch-frontend-svc-loadbalancer.yaml
+  - path: patch-image-pull-secret-api.yaml
+  - path: patch-image-pull-secret-frontend.yaml
+
 images:
   - name: ghcr.io/pmiloszz/feature-flags-api
-    newTag: prod
+    newTag: sha-ae0b68
   - name: ghcr.io/pmiloszz/feature-flags-frontend
-    newTag: prod
-
+    newTag: sha-ae0b68

@@ -1,0 +1,8 @@
+# Docker Desktop usually maps EXTERNAL-IP to localhost:80. For Ingress-only cloud prod, remove this patch from kustomization.yaml.
+apiVersion: v1
+kind: Service
+metadata:
+  name: feature-flags-svc
+  namespace: feature-flags
+spec:
+  type: LoadBalancer

@@ -7,7 +7,7 @@ FROM nginx:1.27-alpine
 COPY static/ /usr/share/nginx/html/static/
 
 # Replace default server config.
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 

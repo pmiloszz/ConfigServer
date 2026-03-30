@@ -235,7 +235,7 @@ git commit -m "your message"
 
 ## Kubernetes deployment
 
-The `k8s/` directory contains manifests for deploying to any Kubernetes cluster.
+The `k8s/feature-flags/` directory contains the current Kubernetes manifests (Kustomize base + overlays).
 
 ### Prerequisites
 
@@ -246,53 +246,47 @@ The `k8s/` directory contains manifests for deploying to any Kubernetes cluster.
 ### Steps
 
 ```bash
-# 1. Build and push your image
-docker build -t your-registry.io/configserver:latest .
-docker push your-registry.io/configserver:latest
+# 1. Build and push your images
+docker build -t your-registry.io/feature-flags-api:latest .
+docker push your-registry.io/feature-flags-api:latest
 
-# 2. Update the image reference in k8s/06-app-deployment.yaml
-#    Replace: your-registry.io/configserver:latest
+docker build -t your-registry.io/feature-flags-frontend:latest -f frontend/Dockerfile .
+docker push your-registry.io/feature-flags-frontend:latest
 
-# 3. Set real credentials in k8s/01-secret.yaml
-#    echo -n "your-password" | base64
+# 2. Update image tags and credentials
+#    - Image tags are configured in `k8s/feature-flags/overlays/<env>/kustomization.yaml` (`images:` section).
+#    - Secret placeholders are in `k8s/feature-flags/base/feature-flags-secret.yaml`.
 
-# 4. Apply in order
-kubectl apply -f k8s/00-namespace.yaml
-kubectl apply -f k8s/01-secret.yaml
-kubectl apply -f k8s/02-configmap.yaml
-kubectl apply -f k8s/03-postgres-pvc.yaml
-kubectl apply -f k8s/04-postgres-statefulset.yaml
-kubectl apply -f k8s/05-postgres-service.yaml
-kubectl apply -f k8s/06-app-deployment.yaml
-kubectl apply -f k8s/07-app-service.yaml
+# 3. Apply manifests
+kubectl apply -k k8s/feature-flags/overlays/dev
+# or
+kubectl apply -k k8s/feature-flags/overlays/prod
 
-# Or apply the whole directory at once
-kubectl apply -f k8s/
+# 4. Check everything is running
+kubectl get all -n feature-flags
 
-# 5. Check everything is running
-kubectl get all -n configserver
-
-# 6. On minikube — get the external URL
-minikube service configserver-service -n configserver
+# 5. Access locally (port-forward; service is ClusterIP)
+kubectl port-forward -n feature-flags svc/feature-flags-svc 8000:80
+# Then open: http://localhost:8000/static/index.html
 ```
 
 ### Useful kubectl commands
 
 ```bash
 # Watch pods come up
-kubectl get pods -n configserver -w
+kubectl get pods -n feature-flags -w
 
 # Check app logs
-kubectl logs -n configserver deployment/configserver -f
+kubectl logs -n feature-flags deployment/feature-flags-api -f
 
 # Check postgres logs
-kubectl logs -n configserver statefulset/postgres -f
+kubectl logs -n feature-flags statefulset/postgres -f
 
 # Run a migration manually
-kubectl exec -n configserver deployment/configserver -- alembic upgrade head
+kubectl exec -n feature-flags deployment/feature-flags-api -- alembic upgrade head
 
 # Connect to postgres directly
-kubectl exec -it -n configserver statefulset/postgres -- psql -U configserver -d flags
+kubectl exec -it -n feature-flags statefulset/postgres -- psql -U configserver -d flags
 ```
 
 ---

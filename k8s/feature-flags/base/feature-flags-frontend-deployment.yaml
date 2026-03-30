@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: feature-flags-frontend
+  namespace: feature-flags
+  labels:
+    app: feature-flags-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: feature-flags-frontend
+  template:
+    metadata:
+      labels:
+        app: feature-flags-frontend
+    spec:
+      containers:
+        - name: nginx
+          image: ghcr.io/pmiloszz/feature-flags-frontend:latest
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: nginx.conf
+              readOnly: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          livenessProbe:
+            httpGet:
+              path: /static/index.html
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: feature-flags-nginx-config
+

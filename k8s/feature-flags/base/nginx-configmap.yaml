@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: feature-flags-nginx-config
+  namespace: feature-flags
+data:
+  nginx.conf: |
+    server {
+      listen 80;
+      server_name _;
+
+      # The static assets live under /static/* in the repo.
+      root /usr/share/nginx/html;
+      index index.html;
+
+      # Default: send `/` to `/static/index.html` for convenience.
+      location = / {
+        return 302 /static/index.html;
+      }
+
+      # Serve static UI.
+      location /static/ {
+        try_files $uri $uri/ =404;
+      }
+
+      # ---- Proxy to backend API ----
+      # Current frontend calls: /healthz, /apps, /apps/{app}/envs, /flags...
+      # We proxy those to the backend Service (to be created as `feature-flags-api-svc`).
+      location = /healthz {
+        proxy_pass http://feature-flags-api-svc:8000/healthz;
+      }
+
+      location /apps {
+        proxy_pass http://feature-flags-api-svc:8000;
+      }
+
+      location /flags {
+        proxy_pass http://feature-flags-api-svc:8000;
+      }
+
+      # Forward-compatible path (Phase 1 “/api/config” endpoint).
+      location /api/ {
+        proxy_pass http://feature-flags-api-svc:8000/api/;
+      }
+
+      # Any other path: not found (prevents accidentally returning HTML for API calls).
+      location / {
+        return 404;
+      }
+    }
+

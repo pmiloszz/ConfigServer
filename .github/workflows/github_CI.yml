@@ -81,3 +81,22 @@ jobs:
         with:
           name: pytest-report
           path: report.xml
+
+  build-images:
+    # Phase 1: on PRs we build images to catch Docker issues early,
+    # but we do NOT push.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Build backend image
+        run: |
+          BACKEND_IMAGE="ghcr.io/${{ github.repository_owner }}/feature-flags-api:${{ github.sha }}"
+          docker build -t "$BACKEND_IMAGE" .
+
+      - name: Build frontend image
+        run: |
+          FRONTEND_IMAGE="ghcr.io/${{ github.repository_owner }}/feature-flags-frontend:${{ github.sha }}"
+          docker build -t "$FRONTEND_IMAGE" -f frontend/Dockerfile .

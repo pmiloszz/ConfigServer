@@ -31,7 +31,13 @@ ENV PATH="/opt/venv/bin:$PATH" \
 WORKDIR /app
 EXPOSE 8000
 
-COPY --from=builder /app /app
+# Copy only runtime inputs (avoid shipping repo metadata like README/uv.lock).
+COPY --from=builder /app/app /app/app
+COPY --from=builder /app/alembic /app/alembic
+COPY --from=builder /app/alembic.ini /app/alembic.ini
+COPY --from=builder /app/static /app/static
+COPY --from=builder /app/main.py /app/main.py
+COPY --from=builder /app/docker-entrypoint.sh /app/docker-entrypoint.sh
 COPY --from=builder /opt/venv /opt/venv
 
 # Default command: run migrations then start server

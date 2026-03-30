@@ -1,7 +1,7 @@
 # --- Builder ---
 FROM ghcr.io/astral-sh/uv:python3.14-trixie-slim AS builder
 
-ENV UV_COMPILE_BYTECODE=1 \
+ENV UV_COMPILE_BYTECODE=0 \
     UV_LINK_MODE=copy \
     UV_NO_DEV=1 \
     UV_PYTHON_DOWNLOADS=0 \
@@ -24,7 +24,9 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # --- Runtime ---
 FROM python:3.14-slim-trixie
 
-ENV PATH="/opt/venv/bin:$PATH"
+ENV PATH="/opt/venv/bin:$PATH" \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
 
 WORKDIR /app
 EXPOSE 8000

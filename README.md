@@ -43,7 +43,7 @@ Open http://localhost:8000/static/index.html for the browser UI.
 # 1. Copy environment config
 cp .env.example .env
 
-# 2. Start PostgreSQL + app (builds image, runs migrations, starts server)
+# 2. Start PostgreSQL + app (builds image; container runs `alembic upgrade head`; starts server)
 docker compose up --build
 
 # 3. Verify
@@ -55,7 +55,7 @@ curl http://localhost:8000/healthz
 Use the dev override to mount source files and restart on save — no rebuild needed:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 ```
 
 > **Windows note:** hot reload uses polling (`WATCHFILES_FORCE_POLLING=true`) for

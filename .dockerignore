@@ -15,6 +15,11 @@ flags.db
 *.egg-info
 dist
 build
+k8s/
+.env
+.env.*
+.python-version
+scripts/
 
 docker-compose.yml
 .coverage

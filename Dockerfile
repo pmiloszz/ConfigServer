@@ -1,7 +1,7 @@
 # --- Builder ---
 FROM ghcr.io/astral-sh/uv:python3.14-trixie-slim AS builder
 
-ENV UV_COMPILE_BYTECODE=0 \
+ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
     UV_NO_DEV=1 \
     UV_PYTHON_DOWNLOADS=0 \
@@ -35,7 +35,6 @@ EXPOSE 8000
 COPY --from=builder /app/app /app/app
 COPY --from=builder /app/alembic /app/alembic
 COPY --from=builder /app/alembic.ini /app/alembic.ini
-COPY --from=builder /app/static /app/static
 COPY --from=builder /app/main.py /app/main.py
 COPY --from=builder /app/docker-entrypoint.sh /app/docker-entrypoint.sh
 COPY --from=builder /opt/venv /opt/venv

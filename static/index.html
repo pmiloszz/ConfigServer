@@ -4,375 +4,194 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ConfigServer</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #f5f4f0; --surface: #ffffff; --border: #e2e0d8;
-      --text: #1a1a18; --muted: #6b6a64; --accent: #1a1a18;
-      --green: #16a34a; --green-bg: #dcfce7;
-      --red: #dc2626; --red-bg: #fee2e2;
-      --amber: #d97706; --amber-bg: #fef3c7;
-      --radius: 10px; --shadow: 0 1px 3px rgba(0,0,0,.08);
-    }
-    body { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; background: var(--bg); color: var(--text); min-height: 100vh; }
-
-    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; gap: 16px; }
-    header h1 { font-size: 15px; font-weight: 600; flex-shrink: 0; }
-    .hdr-r { display: flex; align-items: center; gap: 12px; }
-    .key-wrap { display: flex; align-items: center; gap: 6px; }
-    .key-wrap label { font-size: 11px; color: var(--muted); white-space: nowrap; }
-    #in-apikey { height: 28px; width: 180px; border: 1px solid var(--border); border-radius: 6px; padding: 0 8px; font-size: 12px; font-family: ui-monospace, monospace; background: var(--bg); outline: none; }
-    #in-apikey:focus { border-color: var(--accent); }
-    #health-pill { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); flex-shrink: 0; }
-    #health-dot { width: 7px; height: 7px; border-radius: 50%; background: #ccc; transition: background .3s; }
-    #health-dot.ok { background: var(--green); }
-    #health-dot.err { background: var(--red); }
-
-    main { max-width: 960px; margin: 0 auto; padding: 28px 24px; }
-    .selector { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; box-shadow: var(--shadow); margin-bottom: 20px; }
-    .field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 140px; }
-    .field label { font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
-    .field input { height: 36px; border: 1px solid var(--border); border-radius: 7px; padding: 0 10px; font-size: 13px; color: var(--text); background: var(--bg); outline: none; transition: border-color .15s; }
-    .field input:focus { border-color: var(--accent); }
-
-    .btn { height: 36px; padding: 0 16px; border-radius: 7px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid transparent; transition: opacity .15s; white-space: nowrap; }
-    .btn:disabled { opacity: .45; cursor: not-allowed; }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-primary:hover:not(:disabled) { opacity: .82; }
-    .btn-outline { background: transparent; border-color: var(--border); color: var(--text); }
-    .btn-outline:hover:not(:disabled) { background: var(--bg); }
-    .btn-danger { background: transparent; color: var(--red); font-size: 12px; padding: 0 8px; border-color: transparent; }
-    .btn-danger:hover:not(:disabled) { background: var(--red-bg); }
-    .btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
-
-    .toolbar { display: flex; align-items: center; gap: 10px; padding: 10px 20px; border-bottom: 1px solid var(--border); background: var(--bg); }
-    #in-search { flex: 1; height: 32px; border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; font-size: 13px; background: var(--surface); outline: none; }
-    #in-search:focus { border-color: var(--accent); }
-    #smeta { font-size: 12px; color: var(--muted); white-space: nowrap; }
-
-    #flags-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
-    .panel-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-    .panel-title { font-weight: 600; font-size: 13px; }
-    .panel-meta { font-size: 12px; color: var(--muted); }
-
-    table { width: 100%; border-collapse: collapse; }
-    th { text-align: left; font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--bg); }
-    td { padding: 10px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #fafaf8; }
-    tr.hidden { display: none; }
-    .key-cell { font-family: ui-monospace, monospace; font-size: 12px; font-weight: 500; }
-    .desc-cell { color: var(--muted); font-size: 12px; max-width: 200px; }
-    .ver-cell { color: var(--muted); font-size: 11px; }
-    .date-cell { color: var(--muted); font-size: 11px; white-space: nowrap; }
-    .act { display: flex; gap: 4px; align-items: center; }
-
-    .edit-input { height: 28px; border: 1px solid var(--border); border-radius: 5px; padding: 0 8px; font-size: 12px; width: 160px; outline: none; }
-    .edit-input:focus { border-color: var(--accent); }
-
-    .toggle { position: relative; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
-    .toggle input { position: absolute; opacity: 0; width: 0; height: 0; }
-    .toggle-track { width: 36px; height: 20px; background: #d1d0c8; border-radius: 10px; transition: background .2s; position: relative; flex-shrink: 0; }
-    .toggle input:checked + .toggle-track { background: var(--green); }
-    .toggle-thumb { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: #fff; border-radius: 50%; transition: transform .2s; box-shadow: 0 1px 2px rgba(0,0,0,.2); pointer-events: none; }
-    .toggle input:checked + .toggle-track .toggle-thumb { transform: translateX(16px); }
-    .tlabel { font-size: 12px; color: var(--muted); min-width: 22px; }
-
-    #create-row { background: #fffef5; }
-    #create-row td { padding: 10px 16px; }
-    .cf { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-    .cf input { height: 32px; border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; font-size: 12px; outline: none; }
-    .cf input:focus { border-color: var(--accent); }
-    .cf .ik { width: 140px; font-family: ui-monospace, monospace; }
-    .cf .id { flex: 1; min-width: 120px; }
-
-    .state-row td { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; }
-
-    #toast-box { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 100; }
-    .toast { padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,.12); animation: si .2s ease; max-width: 320px; }
-    .t-ok   { background: var(--green-bg); color: #14532d; border: 1px solid #bbf7d0; }
-    .t-err  { background: var(--red-bg);   color: #7f1d1d; border: 1px solid #fecaca; }
-    .t-warn { background: var(--amber-bg); color: #78350f; border: 1px solid #fde68a; }
-    @keyframes si { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-    @media (max-width: 640px) { .hm { display: none; } main { padding: 16px 12px; } #in-apikey { width: 120px; } }
-  </style>
+  <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-
-<header>
-  <h1>ConfigServer</h1>
-  <div class="hdr-r">
-    <div class="key-wrap">
-      <label for="in-apikey">API Key</label>
-      <input id="in-apikey" type="password" placeholder="leave empty if disabled" autocomplete="off">
-    </div>
-    <div id="health-pill">
-      <div id="health-dot"></div>
-      <span id="health-text">checking…</span>
-    </div>
-  </div>
-</header>
-
-<main>
-  <div class="selector">
-    <div class="field">
-      <label>App</label>
-      <input id="in-app" list="dl-apps" placeholder="e.g. my-service" autocomplete="off">
-      <datalist id="dl-apps"></datalist>
-    </div>
-    <div class="field">
-      <label>Environment</label>
-      <input id="in-env" list="dl-envs" placeholder="e.g. dev" autocomplete="off">
-      <datalist id="dl-envs"></datalist>
-    </div>
-    <button class="btn btn-primary" onclick="loadFlags()">Load flags</button>
-  </div>
-
-  <div id="flags-panel">
-    <div class="panel-header">
-      <span class="panel-title" id="ptitle">No app selected</span>
-      <div style="display:flex;gap:8px;align-items:center">
-        <span class="panel-meta" id="pmeta"></span>
-        <button class="btn btn-outline" id="btn-new" onclick="showCreate()" style="display:none">+ New flag</button>
+  <header>
+    <h1>ConfigServer</h1>
+    <div class="hdr-r">
+      <div class="pill"><span id="health-dot"></span><span id="health-text">checking...</span></div>
+      <div class="pill" id="auth-pill">Auth mode: checking...</div>
+      <div class="key-wrap">
+        <label for="in-apikey">API Key</label>
+        <input id="in-apikey" type="password" autocomplete="off" placeholder="required to load and modify data">
       </div>
     </div>
-    <div class="toolbar" id="toolbar" style="display:none">
-      <input id="in-search" placeholder="Filter by key or description…" oninput="filterFlags(this.value)">
-      <span id="smeta"></span>
+  </header>
+
+  <main>
+    <div id="readonly-banner" class="readonly-banner">API key is required to load data and perform changes.</div>
+
+    <section class="card selector">
+      <div class="field">
+        <label>App</label>
+        <input id="in-app" list="dl-apps" placeholder="e.g. demo" autocomplete="off">
+        <datalist id="dl-apps"></datalist>
+      </div>
+      <div class="field">
+        <label>Environment</label>
+        <input id="in-env" list="dl-envs" placeholder="e.g. dev" autocomplete="off">
+        <datalist id="dl-envs"></datalist>
+      </div>
+      <button class="btn btn-primary" id="btn-load">Load flags</button>
+    </section>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="flags">Flags</button>
+      <button class="tab" data-tab="rollouts">Rollouts</button>
+      <button class="tab" data-tab="audit">Audit</button>
+      <button class="tab" data-tab="settings">Settings</button>
     </div>
-    <table>
-      <thead>
-        <tr>
-          <th>Key</th><th>Value</th>
-          <th class="hm">Description</th>
-          <th class="hm">Created</th>
-          <th class="hm">Ver</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody id="tbody">
-        <tr class="state-row"><td colspan="6">Enter an app and environment to load flags.</td></tr>
-      </tbody>
-    </table>
-  </div>
-</main>
-<div id="toast-box"></div>
 
-<script>
-let curApp = '', curEnv = '';
-const byId = new Map();
+    <section class="section active" id="section-flags">
+      <div class="card panel">
+        <div class="panel-header">
+          <span class="panel-title" id="ptitle">No app selected</span>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span class="panel-meta" id="pmeta"></span>
+            <button class="btn btn-outline btn-sm" id="btn-refresh">Refresh now</button>
+            <button class="btn btn-primary btn-sm" id="btn-new">+ New flag</button>
+          </div>
+        </div>
+        <div class="toolbar">
+          <input id="in-search" class="slim-input" placeholder="Filter by key or description...">
+          <select id="sel-sort" class="slim-input" style="max-width:180px">
+            <option value="key_asc">Sort: key A-Z</option>
+            <option value="key_desc">Sort: key Z-A</option>
+            <option value="created_desc">Sort: newest</option>
+            <option value="created_asc">Sort: oldest</option>
+            <option value="version_desc">Sort: version high-low</option>
+          </select>
+          <button class="btn btn-outline btn-sm" id="btn-bulk-on">Bulk enable page</button>
+          <button class="btn btn-outline btn-sm" id="btn-bulk-off">Bulk disable page</button>
+          <span id="smeta"></span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Key</th>
+              <th>Value</th>
+              <th>Description</th>
+              <th>Created</th>
+              <th class="clickable-sort" id="th-version">Ver</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody">
+            <tr class="state-row"><td colspan="6">Enter app and environment, then load flags.</td></tr>
+          </tbody>
+        </table>
+        <div class="pagination">
+          <button class="btn btn-outline btn-sm" id="btn-prev">Prev</button>
+          <button class="btn btn-outline btn-sm" id="btn-next">Next</button>
+          <span class="meta" id="page-meta">Page 1</span>
+          <span class="grow"></span>
+          <select id="sel-page-size" class="slim-input" style="height:30px;max-width:90px">
+            <option value="10">10</option>
+            <option value="20" selected>20</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+      </div>
+    </section>
 
-const keyInput = document.getElementById('in-apikey');
-keyInput.value = sessionStorage.getItem('apiKey') || '';
-keyInput.addEventListener('input', () => sessionStorage.setItem('apiKey', keyInput.value));
-function apiKey() { return keyInput.value.trim(); }
+    <section class="section" id="section-rollouts">
+      <div class="card panel">
+        <div class="panel-header">
+          <span class="panel-title">Rollout Controls</span>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <span class="panel-meta">Real flag state operations (persisted via backend)</span>
+            <button class="btn btn-danger btn-sm" id="btn-killswitch">Emergency disable selected flags</button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="chk-rollout-select-all" title="Select all rollouts"></th>
+              <th>Flag</th>
+              <th>Current</th>
+              <th>Desired</th>
+              <th>Version</th>
+              <th>Apply</th>
+            </tr>
+          </thead>
+          <tbody id="rollout-body">
+            <tr class="state-row"><td colspan="6">Load flags to manage rollout controls.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-async function req(method, path, body) {
-  const h = {'Content-Type': 'application/json'};
-  const k = apiKey(); if (k) h['X-API-Key'] = k;
-  const r = await fetch(path, {method, headers: h, body: body !== undefined ? JSON.stringify(body) : undefined});
-  if (r.status === 204) return null;
-  const d = await r.json().catch(() => ({}));
-  if (!r.ok) throw {status: r.status, detail: d.detail || r.statusText};
-  return d;
-}
+    <section class="section" id="section-audit">
+      <div class="two-col">
+        <div class="card panel">
+          <div class="panel-header">
+            <span class="panel-title">Recent Activity</span>
+            <button class="btn btn-outline btn-sm" id="btn-clear-audit">Clear session feed</button>
+          </div>
+          <div style="padding:10px 12px">
+            <ul id="audit-list" class="list">
+              <li>No activity yet.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card panel">
+          <div class="panel-header">
+            <span class="panel-title">Dependency Status</span>
+          </div>
+          <div style="padding:10px 12px">
+            <div class="kv">
+              <div class="k">API health</div><div id="st-health">Unknown</div>
+              <div class="k">Auth mode</div><div id="st-auth">Unknown</div>
+              <div class="k">Last sync</div><div id="st-sync">Never</div>
+              <div class="k">Conflict hint</div><div id="st-conflict">None</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-function toast(msg, type = 'ok') {
-  const el = document.createElement('div');
-  el.className = `toast t-${type}`; el.textContent = msg;
-  document.getElementById('toast-box').appendChild(el);
-  setTimeout(() => el.remove(), type === 'err' ? 5000 : 3000);
-}
+    <section class="section" id="section-settings">
+      <div class="card panel">
+        <div class="panel-header"><span class="panel-title">Settings</span></div>
+        <div style="padding:12px">
+          <div class="field" style="max-width:260px">
+            <label>Theme</label>
+            <select id="sel-theme">
+              <option value="dark" selected>Dark theme</option>
+              <option value="light">Light</option>
+              <option value="midnight-cyan">Midnight theme</option>
+            </select>
+          </div>
+          <div class="field" style="max-width:340px;margin-top:10px">
+            <label>Flag-backed Settings (Boolean)</label>
+            <label class="toggle">
+              <input type="checkbox" id="set-compact-density" data-write="1">
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              <span class="tlabel">Compact density</span>
+            </label>
+            <label class="toggle" style="margin-top:8px">
+              <input type="checkbox" id="set-auto-refresh-enabled" data-write="1">
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              <span class="tlabel">Auto refresh</span>
+            </label>
+          </div>
+          <div class="field" style="max-width:260px;margin-top:10px">
+            <label>Auto Refresh Interval</label>
+            <select id="sel-auto-refresh">
+              <option value="15">15 sec</option>
+              <option value="30">30 sec</option>
+              <option value="45">45 sec</option>
+              <option value="60" selected>60 sec</option>
+            </select>
+          </div>
+          <p class="helper" style="margin-top:8px">Auth enforcement on writes is client-side safety. Backend still controls final authorization.</p>
+        </div>
+      </div>
+    </section>
+  </main>
 
-async function checkHealth() {
-  const dot = document.getElementById('health-dot'), txt = document.getElementById('health-text');
-  try { const d = await fetch('/healthz').then(r => r.json()); dot.className = d.status === 'ok' ? 'ok' : 'err'; txt.textContent = d.status === 'ok' ? 'healthy' : 'degraded'; }
-  catch { dot.className = 'err'; txt.textContent = 'unreachable'; }
-}
-
-async function loadApps() {
-  try { const a = await req('GET', '/apps'); document.getElementById('dl-apps').innerHTML = a.map(v => `<option value="${x(v)}">`).join(''); } catch {}
-}
-async function loadEnvs(app) {
-  if (!app) return;
-  try { const e = await req('GET', `/apps/${encodeURIComponent(app)}/envs`); document.getElementById('dl-envs').innerHTML = e.map(v => `<option value="${x(v)}">`).join(''); } catch {}
-}
-document.getElementById('in-app').addEventListener('change', e => loadEnvs(e.target.value.trim()));
-
-async function loadFlags() {
-  const app = document.getElementById('in-app').value.trim();
-  const env = document.getElementById('in-env').value.trim();
-  if (!app || !env) { toast('Enter both app and environment.', 'warn'); return; }
-  curApp = app; curEnv = env;
-  const tb = document.getElementById('tbody');
-  tb.innerHTML = '<tr class="state-row"><td colspan="6">Loading…</td></tr>';
-  document.getElementById('ptitle').textContent = `${app} / ${env}`;
-  document.getElementById('pmeta').textContent = '';
-  document.getElementById('btn-new').style.display = 'none';
-  document.getElementById('toolbar').style.display = 'none';
-  document.getElementById('in-search').value = '';
-  try {
-    const flags = await req('GET', `/flags?app_name=${encodeURIComponent(app)}&env=${encodeURIComponent(env)}`);
-    byId.clear(); flags.forEach(f => byId.set(f.id, f));
-    render(flags);
-    document.getElementById('pmeta').textContent = `${flags.length} flag${flags.length !== 1 ? 's' : ''}`;
-    document.getElementById('btn-new').style.display = '';
-    if (flags.length) document.getElementById('toolbar').style.display = '';
-    await loadApps(); await loadEnvs(app);
-  } catch (e) {
-    const msg = e.status === 401 ? 'Unauthorized — set your API key above.' : `Error: ${x(e.detail || 'network error')}`;
-    tb.innerHTML = `<tr class="state-row"><td colspan="6">${msg}</td></tr>`;
-    toast(e.status === 401 ? 'Invalid or missing API key.' : `Load failed: ${e.detail || 'error'}`, 'err');
-  }
-}
-
-function render(flags) {
-  const tb = document.getElementById('tbody');
-  if (!flags.length) { tb.innerHTML = '<tr class="state-row"><td colspan="6">No flags yet — create the first one.</td></tr>'; return; }
-  tb.innerHTML = flags.map(rowHtml).join('');
-}
-
-function fmtDate(iso) {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
-}
-
-function rowHtml(f) {
-  return `<tr id="r${f.id}" data-key="${x(f.key)}" data-desc="${x(f.description||'')}">
-    <td class="key-cell">${x(f.key)}</td>
-    <td><label class="toggle"><input type="checkbox" ${f.value?'checked':''} onchange="toggle(${f.id},this)"><div class="toggle-track"><div class="toggle-thumb"></div></div><span class="tlabel">${f.value?'on':'off'}</span></label></td>
-    <td class="desc-cell hm" id="dc${f.id}">${x(f.description||'—')}</td>
-    <td class="date-cell hm">${fmtDate(f.created_at)}</td>
-    <td class="ver-cell hm" id="v${f.id}">v${f.version}</td>
-    <td><div class="act">
-      <button class="btn btn-outline btn-sm" id="ebtn${f.id}" onclick="startEdit(${f.id})">Edit</button>
-      <button class="btn btn-danger btn-sm" onclick="del(${f.id},'${x(f.key)}')">Delete</button>
-    </div></td>
-  </tr>`;
-}
-
-function filterFlags(q) {
-  q = q.toLowerCase().trim();
-  const rows = document.getElementById('tbody').querySelectorAll('tr[id^="r"]');
-  let vis = 0;
-  rows.forEach(r => {
-    const m = !q || (r.dataset.key||'').toLowerCase().includes(q) || (r.dataset.desc||'').toLowerCase().includes(q);
-    r.classList.toggle('hidden', !m); if (m) vis++;
-  });
-  document.getElementById('smeta').textContent = q ? `${vis} of ${byId.size} shown` : '';
-}
-
-async function toggle(id, cb) {
-  const f = byId.get(id); if (!f) return;
-  const val = cb.checked; setLabel(id, val);
-  try {
-    const up = await req('PUT', `/flags/${id}`, {value: val, description: f.description, version: f.version});
-    byId.set(id, up); setLabel(id, up.value);
-    const vc = document.getElementById(`v${id}`); if (vc) vc.textContent = `v${up.version}`;
-    toast(`"${f.key}" turned ${up.value?'on':'off'}`);
-  } catch (e) {
-    cb.checked = f.value; setLabel(id, f.value);
-    if (e.status === 409) { toast(`"${f.key}" changed elsewhere — reloading…`, 'warn'); setTimeout(loadFlags, 1200); }
-    else toast(`Update failed: ${e.detail||'error'}`, 'err');
-  }
-}
-function setLabel(id, val) { const r = document.getElementById(`r${id}`); if (r) { const l = r.querySelector('.tlabel'); if (l) l.textContent = val?'on':'off'; } }
-
-function startEdit(id) {
-  const f = byId.get(id); if (!f) return;
-  const dc = document.getElementById(`dc${id}`), btn = document.getElementById(`ebtn${id}`);
-  dc.innerHTML = `<input class="edit-input" id="ei${id}" value="${x(f.description||'')}" maxlength="200">`;
-  btn.textContent = 'Save'; btn.onclick = () => saveEdit(id);
-  const inp = document.getElementById(`ei${id}`); inp.focus(); inp.select();
-  inp.addEventListener('keydown', e => { if (e.key==='Enter') saveEdit(id); if (e.key==='Escape') cancelEdit(id); });
-}
-
-async function saveEdit(id) {
-  const f = byId.get(id); if (!f) return;
-  const inp = document.getElementById(`ei${id}`); if (!inp) return;
-  const desc = inp.value.trim() || null;
-  const btn = document.getElementById(`ebtn${id}`); btn.disabled = true;
-  try {
-    const up = await req('PUT', `/flags/${id}`, {value: f.value, description: desc, version: f.version});
-    byId.set(id, up);
-    const row = document.getElementById(`r${id}`); if (row) row.dataset.desc = desc || '';
-    const dc = document.getElementById(`dc${id}`); if (dc) dc.innerHTML = x(up.description||'—');
-    const vc = document.getElementById(`v${id}`); if (vc) vc.textContent = `v${up.version}`;
-    btn.disabled = false; btn.textContent = 'Edit'; btn.onclick = () => startEdit(id);
-    toast(`"${f.key}" updated`);
-  } catch (e) {
-    btn.disabled = false;
-    if (e.status === 409) { toast(`"${f.key}" changed elsewhere — reloading…`, 'warn'); setTimeout(loadFlags, 1200); }
-    else { toast(`Update failed: ${e.detail||'error'}`, 'err'); cancelEdit(id); }
-  }
-}
-
-function cancelEdit(id) {
-  const f = byId.get(id); if (!f) return;
-  const dc = document.getElementById(`dc${id}`); if (dc) dc.innerHTML = x(f.description||'—');
-  const btn = document.getElementById(`ebtn${id}`); if (btn) { btn.textContent = 'Edit'; btn.disabled = false; btn.onclick = () => startEdit(id); }
-}
-
-function showCreate() {
-  if (document.getElementById('create-row')) return;
-  const tb = document.getElementById('tbody');
-  const sr = tb.querySelector('.state-row'); if (sr) sr.remove();
-  const tr = document.createElement('tr'); tr.id = 'create-row';
-  tr.innerHTML = `<td colspan="6"><div class="cf">
-    <input class="ik" id="nk" placeholder="flag_key" autocomplete="off" maxlength="100">
-    <input class="id" id="nd" placeholder="Description (optional)" maxlength="200">
-    <label class="toggle" title="Initial value"><input type="checkbox" id="nv"><div class="toggle-track"><div class="toggle-thumb"></div></div><span class="tlabel" id="nvl">off</span></label>
-    <button class="btn btn-primary btn-sm" id="btn-add" onclick="submitCreate()">Add</button>
-    <button class="btn btn-outline btn-sm" onclick="cancelCreate()">Cancel</button>
-  </div></td>`;
-  tb.prepend(tr);
-  document.getElementById('nv').addEventListener('change', e => { document.getElementById('nvl').textContent = e.target.checked ? 'on' : 'off'; });
-  document.getElementById('nk').focus();
-}
-
-function cancelCreate() {
-  const r = document.getElementById('create-row'); if (r) r.remove();
-  if (!byId.size) document.getElementById('tbody').innerHTML = '<tr class="state-row"><td colspan="6">No flags yet — create the first one.</td></tr>';
-}
-
-async function submitCreate() {
-  const key = document.getElementById('nk').value.trim(), desc = document.getElementById('nd').value.trim(), val = document.getElementById('nv').checked;
-  if (!key) { toast('Key is required.', 'warn'); return; }
-  const btn = document.getElementById('btn-add'); btn.disabled = true; btn.textContent = 'Adding…';
-  try {
-    const f = await req('POST', '/flags', {app: curApp, env: curEnv, key, value: val, description: desc || null});
-    byId.set(f.id, f); cancelCreate();
-    const tb = document.getElementById('tbody');
-    const newTr = document.createElement('tr'); newTr.id = `r${f.id}`; newTr.dataset.key = f.key; newTr.dataset.desc = f.description || '';
-    newTr.innerHTML = rowHtml(f).replace(/^<tr[^>]*>|<\/tr>$/g, '');
-    const sorted = [...byId.values()].sort((a,b)=>a.key.localeCompare(b.key)), idx = sorted.findIndex(s=>s.id===f.id), rows = tb.querySelectorAll('tr[id^="r"]');
-    rows[idx] ? tb.insertBefore(newTr, rows[idx]) : tb.appendChild(newTr);
-    document.getElementById('pmeta').textContent = `${byId.size} flag${byId.size!==1?'s':''}`;
-    if (byId.size === 1) document.getElementById('toolbar').style.display = '';
-    toast(`"${f.key}" created`); await loadApps();
-  } catch (e) {
-    btn.disabled = false; btn.textContent = 'Add';
-    if (e.status === 409) toast(`Flag "${key}" already exists in ${curApp}/${curEnv}.`, 'warn');
-    else toast(`Create failed: ${e.detail||'error'}`, 'err');
-  }
-}
-
-async function del(id, key) {
-  if (!confirm(`Delete flag "${key}"?\nThis cannot be undone.`)) return;
-  try {
-    await req('DELETE', `/flags/${id}`); byId.delete(id);
-    const row = document.getElementById(`r${id}`); if (row) row.remove();
-    document.getElementById('pmeta').textContent = `${byId.size} flag${byId.size!==1?'s':''}`;
-    if (!byId.size) { document.getElementById('tbody').innerHTML = '<tr class="state-row"><td colspan="6">No flags yet — create the first one.</td></tr>'; document.getElementById('toolbar').style.display = 'none'; }
-    filterFlags(document.getElementById('in-search').value);
-    toast(`"${key}" deleted`);
-  } catch (e) { toast(`Delete failed: ${e.detail||'error'}`, 'err'); }
-}
-
-function x(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-['in-app','in-env'].forEach(id => document.getElementById(id).addEventListener('keydown', e => { if (e.key==='Enter') loadFlags(); }));
-
-checkHealth(); setInterval(checkHealth, 30_000); loadApps();
-</script>
+  <div id="toast-box"></div>
+  <script src="/static/app.js"></script>
 </body>
 </html>

@@ -12,7 +12,6 @@ resources:
   - httproute-redirect.yaml
   - feature-flags-secret.yaml
   - ../../base
-  - ingress.yaml
   - tls-secret.yaml
   - ghcr-secret.yaml
 

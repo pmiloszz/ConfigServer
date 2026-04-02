@@ -10,7 +10,6 @@ kind: Kustomization
 resources:
   - httproute-https.yaml
   - httproute-redirect.yaml
-  - feature-flags-secret.yaml
   - ../../base
   - tls-secret.yaml
   - ghcr-secret.yaml

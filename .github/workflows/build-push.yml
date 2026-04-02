@@ -8,7 +8,7 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 jobs:
@@ -43,4 +43,23 @@ jobs:
           echo "Pushing frontend image: ${FRONTEND_IMAGE}"
           docker build -t "${FRONTEND_IMAGE}" -f frontend/Dockerfile .
           docker push "${FRONTEND_IMAGE}"
+
+      - name: Update dev overlay image tags
+        env:
+          SHORT_SHA: ${{ github.sha }}
+        run: |
+          SHORT_SHA="${SHORT_SHA:0:6}"
+          sed -i "s/newTag: sha-.*/newTag: sha-${SHORT_SHA}/" \
+            k8s/feature-flags/overlays/dev/kustomization.yaml
+
+      - name: Commit updated dev image tags
+        env:
+          SHORT_SHA: ${{ github.sha }}
+        run: |
+          SHORT_SHA="${SHORT_SHA:0:6}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add k8s/feature-flags/overlays/dev/kustomization.yaml
+          git diff --cached --quiet || git commit -m "ci: update dev image tags to sha-${SHORT_SHA}"
+          git push
 

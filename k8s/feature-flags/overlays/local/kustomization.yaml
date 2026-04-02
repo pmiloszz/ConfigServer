@@ -8,6 +8,8 @@ resources:
 
 patches:
   - path: patch-frontend-svc-loadbalancer.yaml
+  - path: patch-image-pull-secret-api.yaml
+  - path: patch-image-pull-secret-frontend.yaml
   - path: patch-configmap-dev.yaml
     target:
       kind: ConfigMap
@@ -15,6 +17,6 @@ patches:
 
 images:
   - name: ghcr.io/pmiloszz/feature-flags-api
-    newTag: local
+    newTag: sha-74c314
   - name: ghcr.io/pmiloszz/feature-flags-frontend
-    newTag: local
+    newTag: sha-74c314

@@ -16,7 +16,6 @@ resources:
   - ghcr-secret.yaml
 
 patches:
-  - path: patch-frontend-svc-loadbalancer.yaml
   - path: patch-image-pull-secret-api.yaml
   - path: patch-image-pull-secret-frontend.yaml
   - path: patch-configmap-dev.yaml

@@ -1,0 +1,5 @@
+creation_rules:
+  - path_regex: .*.yaml
+    encrypted_regex: ^(data|stringData)$
+    # Use this age recipient to encrypt tenant secrets.
+    age: age1pnuww2scf43dlqwutf73qz4d4pzdu54gvarnvpr524n6g2waysasxsla60

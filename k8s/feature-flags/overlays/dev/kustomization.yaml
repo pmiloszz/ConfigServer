@@ -1,13 +1,25 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+# GHCR pull secret: decrypt ghcr-secret.yaml, replace REPLACE_WITH_GHCR_PAT with a
+# PAT that has read:packages scope, then re-encrypt before committing:
+#   sops --decrypt --in-place k8s/feature-flags/overlays/dev/ghcr-secret.yaml
+#   # edit the file
+#   sops --encrypt --in-place k8s/feature-flags/overlays/dev/ghcr-secret.yaml
+
 resources:
+  - httproute-https.yaml
+  - httproute-redirect.yaml
+  - feature-flags-secret.yaml
   - ../../base
   - ingress.yaml
   - tls-secret.yaml
+  - ghcr-secret.yaml
 
 patches:
   - path: patch-frontend-svc-loadbalancer.yaml
+  - path: patch-image-pull-secret-api.yaml
+  - path: patch-image-pull-secret-frontend.yaml
   - path: patch-configmap-dev.yaml
     target:
       kind: ConfigMap
@@ -15,7 +27,7 @@ patches:
 
 images:
   - name: ghcr.io/pmiloszz/feature-flags-api
-    newTag: dev
+    newTag: sha-8dd47f
   - name: ghcr.io/pmiloszz/feature-flags-frontend
-    newTag: dev
+    newTag: sha-8dd47f
 

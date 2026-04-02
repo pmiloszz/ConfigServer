@@ -1,0 +1,22 @@
+# HTTP → HTTPS on port 80 listener (see Gateway listener http-501404-xyz)
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: feature-flags-http-redirect
+spec:
+  parentRefs:
+    - name: public
+      namespace: istio-gateway
+      sectionName: http-501404-xyz
+  hostnames:
+    - configserver-dev.501404.xyz
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301

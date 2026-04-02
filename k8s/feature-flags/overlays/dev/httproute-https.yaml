@@ -1,0 +1,22 @@
+# Cross-namespace attachment to Gateway may require ReferenceGrant in istio-gateway — see platform/istio-gateway/
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: feature-flags-https
+spec:
+  parentRefs:
+    - name: public
+      namespace: istio-gateway
+      sectionName: https-501404-xyz
+  hostnames:
+    - configserver-dev.501404.xyz
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: feature-flags-svc
+          port: 80

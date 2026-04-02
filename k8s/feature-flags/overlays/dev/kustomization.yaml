@@ -22,6 +22,11 @@ patches:
     target:
       kind: ConfigMap
       name: feature-flags-config
+  - path: feature-flags-secret.yaml
+    target:
+      kind: Secret
+      name: feature-flags-secret
+      namespace: feature-flags
 
 images:
   - name: ghcr.io/pmiloszz/feature-flags-api

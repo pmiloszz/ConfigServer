@@ -8,6 +8,8 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 ![CI](https://github.com/pmiloszz/ConfigServer/actions/workflows/github_CI.yml/badge.svg)
 
+**Live (dev):** [Web UI](https://configserver-dev.501404.xyz/static/index.html) · [API docs](https://configserver-dev.501404.xyz/docs)
+
 ConfigServer is a self-hosted feature-flag and config service built with **FastAPI** and **SQLModel**. It gives every application a simple REST API to read and write boolean flags scoped by `app` + `env` + `key`, with **optimistic concurrency control** so simultaneous writers can never silently overwrite each other.
 
 The backend runs anywhere Python runs. A fully static browser UI ships alongside it so you can manage flags without writing a single line of client code. For production, a Kustomize-based Kubernetes setup splits the API and an NGINX frontend into separate images behind an ingress, with PostgreSQL on a StatefulSet.

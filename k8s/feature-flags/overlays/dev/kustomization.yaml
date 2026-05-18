@@ -15,6 +15,7 @@ resources:
   - ghcr-secret.yaml
 
 patches:
+  - path: patch-restart-api.yaml
   - path: patch-image-pull-secret-api.yaml
   - path: patch-image-pull-secret-frontend.yaml
   - path: patch-configmap-dev.yaml

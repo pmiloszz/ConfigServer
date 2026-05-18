@@ -30,7 +30,7 @@ patches:
 
 images:
   - name: ghcr.io/pmiloszz/feature-flags-api
-    newTag: sha-1f2369
+    newTag: sha-5fe76d
   - name: ghcr.io/pmiloszz/feature-flags-frontend
-    newTag: sha-1f2369
+    newTag: sha-5fe76d
 

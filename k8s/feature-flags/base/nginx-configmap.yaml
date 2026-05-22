@@ -43,6 +43,18 @@ data:
         proxy_pass http://feature-flags-api-svc:8000/api/;
       }
 
+      location /docs {
+        proxy_pass http://feature-flags-api-svc:8000;
+      }
+
+      location /redoc {
+        proxy_pass http://feature-flags-api-svc:8000;
+      }
+
+      location /openapi.json {
+        proxy_pass http://feature-flags-api-svc:8000;
+      }
+
       # Any other path: not found (prevents accidentally returning HTML for API calls).
       location / {
         return 404;

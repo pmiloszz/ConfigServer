@@ -5,6 +5,8 @@ metadata:
   namespace: feature-flags
   labels:
     app: feature-flags-api
+  annotations:
+      reloader.stakater.com/auto: 'true'
 spec:
   replicas: 1
   selector:

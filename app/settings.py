@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     debug: bool = True
     use_alembic: bool = False
     api_key: str = ""
+    metrics_enabled: bool = True
 
 
 settings = Settings()

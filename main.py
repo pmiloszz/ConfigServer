@@ -6,6 +6,7 @@ from pathlib import Path
 
 from fastapi import Depends, FastAPI
 from fastapi.responses import JSONResponse
+from prometheus_fastapi_instrumentator import Instrumentator
 from sqlmodel import SQLModel
 from starlette.staticfiles import StaticFiles
 
@@ -54,6 +55,11 @@ def create_app() -> FastAPI:
     @application.get("/healthz")
     def healthz():
         return JSONResponse({"status": "ok"})
+
+    if settings.metrics_enabled:
+        Instrumentator(
+            excluded_handlers=["/healthz", "/metrics"],
+        ).instrument(application).expose(application, include_in_schema=False)
 
     return application
 

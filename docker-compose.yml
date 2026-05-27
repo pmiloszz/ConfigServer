@@ -39,5 +39,15 @@ services:
         condition: service_healthy     # wait for postgres to be ready before starting
     restart: unless-stopped
 
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - web
+    restart: unless-stopped
+
 volumes:
   postgres_data:                       # named volume managed by Docker

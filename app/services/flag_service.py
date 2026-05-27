@@ -1,6 +1,7 @@
 # app/services/flag_service.py
 from datetime import UTC, datetime
 
+from app.metrics import FLAG_LIST_AT_LIMIT, FLAG_LIST_REQUESTS, FLAG_VALUE_CHANGES, FLAG_WRITES, FLAGS_RETURNED
 from app.models import Flag
 from app.repositories.flag_repository_base import FlagRepositoryBase
 from app.schemas.flag import FlagCreate, FlagUpdate
@@ -12,7 +13,12 @@ class FlagService:
         self._repo = repo
 
     def list_flags(self, app_name: str, env: str, limit: int = 200) -> list[Flag]:
-        return self._repo.list_by_app_env(app_name=app_name, env=env, limit=limit)
+        result = self._repo.list_by_app_env(app_name=app_name, env=env, limit=limit)
+        FLAG_LIST_REQUESTS.labels(app=app_name, env=env).inc()
+        FLAGS_RETURNED.labels(app=app_name, env=env).observe(len(result))
+        if len(result) == limit:
+            FLAG_LIST_AT_LIMIT.labels(app=app_name, env=env).inc()
+        return result
 
     def get_flag(self, flag_id: int) -> Flag:
         f = self._repo.get_by_id(flag_id)
@@ -28,7 +34,9 @@ class FlagService:
             value=payload.value,
             description=payload.description,
         )
-        return self._repo.create(flag)
+        result = self._repo.create(flag)
+        FLAG_WRITES.labels(operation="create").inc()
+        return result
 
     def update_flag(self, flag_id: int, payload: FlagUpdate) -> Flag:
         f = self.get_flag(flag_id)
@@ -37,6 +45,7 @@ class FlagService:
 
         updated = False
         if payload.value is not None and payload.value != f.value:
+            FLAG_VALUE_CHANGES.labels(app=f.app, env=f.env, direction="on" if payload.value else "off").inc()
             f.value = payload.value
             updated = True
         if payload.description is not None and payload.description != f.description:
@@ -47,12 +56,14 @@ class FlagService:
             f.version = f.version + 1
             f.updated_at = datetime.now(UTC)
             self._repo.save(f)
+            FLAG_WRITES.labels(operation="update").inc()
 
         return f
 
     def delete_flag(self, flag_id: int) -> None:
         f = self.get_flag(flag_id)
         self._repo.delete(f)
+        FLAG_WRITES.labels(operation="delete").inc()
 
     def list_apps(self) -> list[str]:
         return self._repo.list_apps()

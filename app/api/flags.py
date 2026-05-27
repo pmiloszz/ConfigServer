@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import Session
 
 from app.db import get_session
+from app.metrics import VERSION_CONFLICTS
 from app.repositories.flag_repository import FlagRepository
 from app.repositories.flag_repository_base import FlagRepositoryBase
 from app.schemas.flag import FlagCreate, FlagRead, FlagUpdate
@@ -85,6 +86,7 @@ def update_flag(
     except FlagNotFound as err:
         raise HTTPException(status_code=404, detail=str(err)) from err
     except VersionConflict as err:
+        VERSION_CONFLICTS.inc()
         raise HTTPException(status_code=409, detail=str(err)) from err
 
 

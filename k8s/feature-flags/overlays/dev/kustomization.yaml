@@ -29,7 +29,7 @@ patches:
 
 images:
   - name: ghcr.io/pmiloszz/feature-flags-api
-    newTag: sha-decebf
+    newTag: sha-13ad7d
   - name: ghcr.io/pmiloszz/feature-flags-frontend
-    newTag: sha-decebf
+    newTag: sha-13ad7d
 

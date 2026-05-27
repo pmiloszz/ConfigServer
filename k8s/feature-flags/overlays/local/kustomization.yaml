@@ -17,6 +17,6 @@ patches:
 
 images:
   - name: ghcr.io/pmiloszz/feature-flags-api
-    newTag: sha-74c314
+    newTag: sha-decebf
   - name: ghcr.io/pmiloszz/feature-flags-frontend
-    newTag: sha-74c314
+    newTag: sha-decebf

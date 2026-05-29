@@ -297,29 +297,7 @@ The setup splits responsibility across two repositories:
 
 #### Delivery pipeline — what happens on every push
 
-```mermaid
-sequenceDiagram
-    actor Dev as 👨‍💻 Developer
-    participant GH as GitHub (main)
-    participant CI as GitHub Actions
-    participant GHCR as GHCR Registry
-    participant Flux as Flux CD
-    participant K8s as configserver-dev namespace
-
-    Dev->>GH: git push
-    GH->>CI: trigger build-push.yml
-    CI->>GHCR: push feature-flags-api:sha-XXXXXX
-    CI->>GHCR: push feature-flags-frontend:sha-XXXXXX
-    CI->>GH: commit "ci: update dev image tags to sha-XXXXXX"
-
-    Note over Flux: syncs GitRepository every 1 min
-    Flux->>GH: fetch new revision
-    GH-->>Flux: k8s/feature-flags/overlays/dev/ + encrypted secrets
-    Note over Flux: decrypt SOPS secrets using age key
-    Flux->>K8s: apply Kustomize overlay (prune enabled)
-    K8s->>GHCR: pull new images
-    Note over K8s: rolling update — old pods replaced
-```
+![GitOps delivery pipeline](assets/diagram-gitops-pipeline.svg)
 
 ### How it works step by step
 

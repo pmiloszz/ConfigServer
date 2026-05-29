@@ -293,6 +293,8 @@ The setup splits responsibility across two repositories:
 - **Flux bootstrap repo** (platform-owned) — manages the cluster itself: installs Flux, Istio, and all tenant definitions. It points Flux at this repo and grants it scoped permissions.
 - **This repo** (ConfigServer) — owns the application manifests under `k8s/`. Flux watches it and applies changes automatically.
 
+![GitOps deployment pipeline](assets/diagram-gitops-flow.svg)
+
 #### Delivery pipeline — what happens on every push
 
 ```mermaid
@@ -310,51 +312,13 @@ sequenceDiagram
     CI->>GHCR: push feature-flags-frontend:sha-XXXXXX
     CI->>GH: commit "ci: update dev image tags to sha-XXXXXX"
 
-    Note over Flux: polls GitRepository every 1 min
+    Note over Flux: syncs GitRepository every 1 min
     Flux->>GH: fetch new revision
     GH-->>Flux: k8s/feature-flags/overlays/dev/ + encrypted secrets
     Note over Flux: decrypt SOPS secrets using age key
     Flux->>K8s: apply Kustomize overlay (prune enabled)
     K8s->>GHCR: pull new images
     Note over K8s: rolling update — old pods replaced
-```
-
-#### Cluster topology — how traffic and components connect
-
-```mermaid
-flowchart LR
-    user("🌐 configserver-dev.501404.xyz")
-
-    subgraph github["GitHub"]
-        repo[("ConfigServer repo\nmain branch")]
-        ghcr[("GHCR\nRegistry")]
-    end
-
-    subgraph hetzner["k3s on Hetzner"]
-        subgraph platform["Platform layer (flux-system)"]
-            flux["Flux CD\nGitRepository · Kustomization"]
-            gateway["Istio Gateway\nHTTPRoute"]
-        end
-
-        subgraph appns["configserver-dev namespace\n(flux-tenant — scoped RBAC)"]
-            nginx["NGINX frontend\n:80\n/static/* · proxy → api"]
-            api["FastAPI API\n:8000\n/flags /apps /healthz /metrics"]
-            db[("PostgreSQL\n:5432")]
-            prom["Prometheus\n:9090"]
-        end
-    end
-
-    user -->|"HTTPS"| gateway
-    gateway -->|"HTTPRoute"| nginx
-    nginx -->|"/api/ /flags/ /apps/"| api
-    nginx -->|"/static/*"| nginx
-    api --- db
-    prom -.->|"scrape /metrics\nClusterIP"| api
-
-    flux -->|"poll every 1 min"| repo
-    flux -->|"apply manifests"| appns
-    api -->|"pull image"| ghcr
-    nginx -->|"pull image"| ghcr
 ```
 
 ### How it works step by step
